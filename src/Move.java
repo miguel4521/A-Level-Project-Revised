@@ -1,13 +1,11 @@
 public class Move {
     private final int startSq, endSq, pieceMoved, pieceCaptured;
-    private final boolean isDoubleSqMove;
-    private final boolean isCaptureMove;
+    private final boolean isDoubleSqMove, isCaptureMove;
     private final int[] moveID;
     Piece p = new Piece();
     Board b = new Board();
-    private boolean isCastle;
-    private boolean enPassantMove;
-    private boolean isPromotion = false;
+    private boolean isCastle, enPassantMove, isPromotion = false;
+    private int[] board;
 
     public Move(int startSq, int endSq) {
         this.startSq = startSq;
@@ -15,6 +13,7 @@ public class Move {
         this.pieceMoved = Board.board[startSq];
         this.pieceCaptured = Board.board[endSq];
         this.moveID = new int[]{startSq, endSq};
+        board = Board.board;
         isDoubleSqMove = p.isPiece(pieceMoved, p.pawn) && endSq - 32 == startSq || endSq + 32 == startSq;
         if (p.isPiece(getPieceMoved(), p.pawn) && (b.getRank(endSq) == 0 || b.getRank(endSq) == 7))
             isPromotion = true;
@@ -69,5 +68,9 @@ public class Move {
 
     public boolean isCaptureMove() {
         return isCaptureMove;
+    }
+
+    public int[] getBoard() {
+        return board;
     }
 }

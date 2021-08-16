@@ -14,6 +14,7 @@ public class MouseHandler {
     AI ai = new AI();
     private int squareSelected = -1;
     public static Thread task;
+    int[] board;
 
     public void mouseClick(Stage stage) {
         moves = moveGenerator.generateLegalMoves();
@@ -21,8 +22,13 @@ public class MouseHandler {
             int file = (int) e.getX() / gui.sqSize;
             int rank = (int) e.getY() / gui.sqSize;
             int square = b.getSquare(rank, file);
-            if (Board.board[square] != 0)
+            gui.destroyCircles();
+            if (!AI.thinking)
+                board = Board.board;
+            if (board[square] != 0) {
                 gui.drawSquare(rank, file);
+                gui.drawLegalMoves(square, moves);
+            }
             if (squareSelected != square) {
                 int[] moveID = new int[]{squareSelected, square};
                 for (Move legalMove : moves) {
@@ -33,13 +39,14 @@ public class MouseHandler {
                         squareSelected = -1;
                         ai.addToChessNotationMoveLog(legalMove, moves);
                         Board.fenHistory.add(b.loadFenFromBoard());
-                        //moves = moveGenerator.generateLegalMoves();
-                        doAIMove();
+                        moves = moveGenerator.generateLegalMoves();
+                        //doAIMove();
                     } else
                         squareSelected = square;
                 }
             } else {
                 gui.removeSquare();
+                gui.destroyCircles();
                 squareSelected = -1;
             }
         };

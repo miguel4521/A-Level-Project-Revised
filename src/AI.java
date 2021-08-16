@@ -68,14 +68,16 @@ public class AI implements Runnable {
     }};
     //</editor-fold>
     MoveGenerator moveGenerator = new MoveGenerator();
+    MoveSearch ms = new MoveSearch();
+    GUI gui = new GUI();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
+    public static boolean thinking = false;
 
     @Override
     public void run() {
-        MoveSearch ms = new MoveSearch();
+        thinking = true;
         ArrayList<Move> legalMoves = moveGenerator.generateLegalMoves();
-        GUI gui = new GUI();
         String input = chessNotationMoveLog.toString().
                 replace("[", "").replace("]", "").replace(",", "");
         Move move = notationToMove(findMove(input), legalMoves);
@@ -98,6 +100,7 @@ public class AI implements Runnable {
         Move finalMove = move;
         Platform.runLater(() -> gui.moveImages(finalMove));
         Board.fenHistory.add(b.loadFenFromBoard());
+        thinking = false;
     }
 
     private Move randomOpeningMove() {
