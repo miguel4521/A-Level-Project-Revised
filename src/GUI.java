@@ -2,14 +2,15 @@ import javafx.animation.PathTransition;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class GUI {
     private static final StackPane startTile = new StackPane(), endTile = new StackPane();
     private static final StackPane square = new StackPane();
-    private static final ArrayList<Circle> circles = new ArrayList<>();
+    private static final ArrayList<Node> circles = new ArrayList<>();
     public static ImageView[][] images = new ImageView[8][8];
     final int dimension = 8;
     Piece p = new Piece();
@@ -230,18 +231,38 @@ public class GUI {
         Main.root.add(square, file, rank);
     }
 
+    public void drawCaptureCircle(int endSquare) {
+        int rank = b.getRank(endSquare), file = b.getFile(endSquare);
+        double strokeWidth = (double) sqSize / 12;
+        Arc ring = new Arc(0, 0, (double) sqSize / 2 - strokeWidth, (double) sqSize / 2 - strokeWidth, 0, 360);
+        ring.setStrokeWidth(strokeWidth);
+        ring.setStrokeType(StrokeType.OUTSIDE);
+        ring.setOpacity(0.2);
+        ring.setStrokeLineCap(StrokeLineCap.BUTT);
+        ring.setStroke(Color.BLACK);
+        ring.setFill(null);
+        GridPane.setHalignment(ring, HPos.CENTER);
+        GridPane.setValignment(ring, VPos.CENTER);
+        Main.root.add(ring, file, rank);
+        circles.add(ring);
+    }
+
     public void removeSquare() {
         Main.root.getChildren().remove(square);
     }
 
     public void drawLegalMoves(int square, ArrayList<Move> moves) {
         for (Move move : moves) {
-            if (move.getStartSq() == square)
-                drawCircle(move.getEndSq());
+            if (move.getStartSq() == square) {
+                if (move.getBoard()[move.getEndSq()] == 0)
+                    drawEmptyCircle(move.getEndSq());
+                else
+                    drawCaptureCircle(move.getEndSq());
+            }
         }
     }
 
-    private void drawCircle(int endSquare) {
+    private void drawEmptyCircle(int endSquare) {
         int rank = b.getRank(endSquare), file = b.getFile(endSquare);
         Circle circle = new Circle(0, 0, (double) sqSize / 7);
         circle.setOpacity(0.2);
@@ -252,7 +273,7 @@ public class GUI {
     }
 
     public void destroyCircles() {
-        for (Circle circle : circles)
+        for (Node circle : circles)
             Main.root.getChildren().remove(circle);
         circles.clear();
     }

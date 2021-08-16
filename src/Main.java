@@ -23,6 +23,6 @@ public class Main extends Application {
         gui.drawBoard(root);
         gui.drawPieces(startFen, root);
         mouseHandler.mouseClick(window);
-        //mouseHandler.doAIMove();
+        mouseHandler.doAIMove();
     }
 }

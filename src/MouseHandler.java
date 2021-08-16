@@ -39,8 +39,8 @@ public class MouseHandler {
                         squareSelected = -1;
                         ai.addToChessNotationMoveLog(legalMove, moves);
                         Board.fenHistory.add(b.loadFenFromBoard());
-                        moves = moveGenerator.generateLegalMoves();
-                        //doAIMove();
+                        //moves = moveGenerator.generateLegalMoves();
+                        doAIMove();
                     } else
                         squareSelected = square;
                 }
@@ -58,5 +58,4 @@ public class MouseHandler {
         task = new Thread(r);
         task.start();
     }
-
 }
