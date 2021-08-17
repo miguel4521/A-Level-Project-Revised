@@ -26,9 +26,9 @@ import java.util.concurrent.TimeUnit;
 
 public class GUI {
     private static final StackPane startTile = new StackPane(), endTile = new StackPane();
-    private static final StackPane square = new StackPane();
     private static final ArrayList<Node> circles = new ArrayList<>();
     public static ImageView[][] images = new ImageView[8][8];
+    private static final StackPane square = new StackPane();
     final int dimension = 8;
     Piece p = new Piece();
     Board b = new Board();

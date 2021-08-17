@@ -15,7 +15,6 @@ public class MoveSearch {
     Move bestMove;
     Move bestMoveInThisPosition;
     int bestEval;
-    private int bestEvalThisIteration;
 
     public Move startSearch() {
         timeStarted = System.currentTimeMillis();
@@ -71,7 +70,6 @@ public class MoveSearch {
                 alpha = eval;
                 if (plyFromRoot == 0) {
                     bestMoveThisIteration = move;
-                    bestEvalThisIteration = eval;
                     bestMove = move;
                 }
             }

@@ -5,7 +5,7 @@ public class Move {
     Piece p = new Piece();
     Board b = new Board();
     private boolean isCastle, enPassantMove, isPromotion = false;
-    private int[] board;
+    private final int[] board;
 
     public Move(int startSq, int endSq) {
         this.startSq = startSq;
