@@ -18,7 +18,7 @@ public class Main extends Application {
     public void start(Stage window) {
         root = new GridPane();
         // The colour is the background colour of the board
-        window.setScene(new Scene(root, gui.boardSize  + gui.sqSize * 3, gui.boardSize, Color.rgb(66, 66, 66)));
+        window.setScene(new Scene(root, GUI.boardSize + GUI.sqSize * 3, GUI.boardSize, Color.rgb(34, 40, 49)));
         window.setTitle("Chess");
         window.setResizable(true);
         window.show();
@@ -28,9 +28,15 @@ public class Main extends Application {
         mouseHandler.mouseClick(window);
         mouseHandler.doAIMove();
 
+        gui.drawDifficultyPanel();
+        gui.drawEvaluation();
+
         window.setOnCloseRequest(t -> {
             Platform.exit();
             System.exit(0);
         });
+        //root.setGridLinesVisible(true);
     }
+
+    public static void main(String[] args) {launch(args);}
 }
