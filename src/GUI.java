@@ -11,6 +11,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -29,12 +33,14 @@ public class GUI {
     private static final ArrayList<Node> circles = new ArrayList<>();
     public static ImageView[][] images = new ImageView[8][8];
     private static final StackPane square = new StackPane();
-    final int dimension = 8;
+    static final int dimension = 8;
     Piece p = new Piece();
     Board b = new Board();
     boolean errorFound = false;
-    int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
-    int sqSize = boardSize / dimension;
+    static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
+    static int sqSize = boardSize / dimension;
+
+    public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
 
     private static void delImage(ImageView image) {
         image.setImage(null);
@@ -276,5 +282,48 @@ public class GUI {
         for (Node circle : circles)
             Main.root.getChildren().remove(circle);
         circles.clear();
+    }
+
+    private void createPanel(int row) {
+        double sqSize = GUI.sqSize;
+        // Create the panel
+        Rectangle panel = new Rectangle(0, 0, sqSize * 3, sqSize);
+        panel.setFill(Color.rgb(57, 62, 70));
+        panel.setArcWidth(sqSize / 6);
+        panel.setArcHeight(sqSize / 6);
+        panel.setStroke(Color.BLACK);
+        Main.root.add(panel, 8, row);
+    }
+
+    public void drawDifficultyPanel() {
+        double sqSize = GUI.sqSize;
+        createPanel(0);
+        // Create the text
+        Text text = new Text(sqSize, sqSize, "Difficulty - Hard\n     ELO 1500");
+        text.setFont(Font.font("Verdana", FontWeight.NORMAL, sqSize / 3));
+        GridPane.setHalignment(text, HPos.CENTER);
+        GridPane.setValignment(text, VPos.CENTER);
+        text.setFill(Color.rgb(219,216,214));
+        Main.root.add(text, 8, 0);
+    }
+
+    public void drawEvaluation() {
+        createPanel(1);
+        double sqSize = GUI.sqSize;
+        evaluationText.setFont(Font.font("Verdana", FontWeight.NORMAL, sqSize / 3));
+        GridPane.setHalignment(evaluationText, HPos.CENTER);
+        GridPane.setValignment(evaluationText, VPos.CENTER);
+        evaluationText.setFill(Color.rgb(219,216,214));
+        Main.root.add(evaluationText, 8, 1);
+    }
+
+
+    public void updateEvaluation(double evaluation) {
+        if (evaluation == -1)
+            evaluationText.setText("Book Move");
+        else if (p.plusOrMinus((int) Double.POSITIVE_INFINITY) == evaluation)
+            evaluationText.setText("Forced Checkmate");
+        else
+            evaluationText.setText(-evaluation / 10 + "");
     }
 }
