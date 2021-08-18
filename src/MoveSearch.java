@@ -15,11 +15,13 @@ public class MoveSearch {
     Move bestMove;
     Move bestMoveInThisPosition;
     int bestEval;
+    GUI gui = new GUI();
+    int bestEvalThisIteration = bestEval = 0;
+
+    public static int MAX_DISTANCE = 4;
 
     public Move startSearch() {
         timeStarted = System.currentTimeMillis();
-        int MAX_DISTANCE = 4;
-        int bestEvalThisIteration = bestEval = 0;
         for (int searchDepth = 3; searchDepth <= MAX_DISTANCE; searchDepth++) {
             moveSearch(MAX_DISTANCE, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
             if (abortSearch)
@@ -69,7 +71,9 @@ public class MoveSearch {
                 bestMoveInThisPosition = move;
                 alpha = eval;
                 if (plyFromRoot == 0) {
+                    bestEvalThisIteration = eval;
                     bestMoveThisIteration = move;
+                    gui.updateEvaluation(bestEvalThisIteration);
                     bestMove = move;
                 }
             }
