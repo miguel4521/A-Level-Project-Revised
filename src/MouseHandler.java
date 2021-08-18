@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MouseHandler {
-    public static ArrayList<Move> moves = new ArrayList<>();
     GUI gui = new GUI();
+    public static ArrayList<Move> moves = new ArrayList<>();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
     MoveGenerator moveGenerator = new MoveGenerator();
@@ -19,8 +19,8 @@ public class MouseHandler {
     public void mouseClick(Stage stage) {
         moves = moveGenerator.generateLegalMoves();
         EventHandler<MouseEvent> eventHandler = e -> {
-            int file = (int) e.getX() / gui.sqSize;
-            int rank = (int) e.getY() / gui.sqSize;
+            int file = (int) e.getX() / GUI.sqSize;
+            int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
             if (square < 128)
                 moveClick(square, rank, file);
@@ -46,8 +46,8 @@ public class MouseHandler {
                     squareSelected = -1;
                     ai.addToChessNotationMoveLog(legalMove, moves);
                     Board.fenHistory.add(b.loadFenFromBoard());
-                    //moves = moveGenerator.generateLegalMoves();
                     doAIMove();
+                    //moves = moveGenerator.generateLegalMoves();
                 } else
                     squareSelected = square;
             }
