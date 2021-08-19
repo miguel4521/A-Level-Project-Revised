@@ -22,8 +22,10 @@ public class MouseHandler {
             int file = (int) e.getX() / GUI.sqSize;
             int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
-            if (square < 128)
-                moveClick(square, rank, file);
+            if (!AI.thinking) {
+                if (square < 128)
+                    moveClick(square, rank, file);
+            }
         };
         stage.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
     }

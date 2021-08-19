@@ -24,6 +24,7 @@ import java.awt.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -135,6 +136,9 @@ public class GUI {
     public void moveImages(Move move) {
         int startRank = b.getRank(move.getStartSq()), startFile = b.getFile(move.getStartSq()),
                 endRank = b.getRank(move.getEndSq()), endFile = b.getFile(move.getEndSq());
+        // For undo moves, add piece that was captured
+        if (images[startRank][startFile] == null)
+            images[startRank][startFile] = placeImage(startRank, startFile, move.getPieceMoved(), Main.root);
         showLastMove(move);
         moveAnimation(move);
         final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -170,7 +174,9 @@ public class GUI {
             assert finalImage != null;
             delImage(finalImage);
         }, 150, TimeUnit.MILLISECONDS);
-
+        // For undo moves add captured piece back
+        if (move.getPieceCaptured() != 0 && move.isUndoMove())
+            images[startRank][startFile] = placeImage(startRank, startFile, move.getPieceCaptured(), Main.root);
     }
 
     private void moveAnimation(Move move) {
@@ -184,6 +190,7 @@ public class GUI {
 
         PathTransition transition = new PathTransition();
         ImageView image = images[startRank][startFile];
+        image.toFront();
         transition.setPath(path);
         transition.setNode(image);
         transition.setDuration(Duration.seconds(0.2));
@@ -300,7 +307,7 @@ public class GUI {
         createPanel(0);
         // Create the text
         Text text = new Text(sqSize, sqSize, "Difficulty - Hard\n     ELO 1500");
-        text.setFont(Font.font("Verdana", FontWeight.NORMAL, sqSize / 3));
+        text.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3));
         GridPane.setHalignment(text, HPos.CENTER);
         GridPane.setValignment(text, VPos.CENTER);
         text.setFill(Color.rgb(219,216,214));
@@ -310,7 +317,7 @@ public class GUI {
     public void drawEvaluation() {
         createPanel(1);
         double sqSize = GUI.sqSize;
-        evaluationText.setFont(Font.font("Verdana", FontWeight.NORMAL, sqSize / 3));
+        evaluationText.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3));
         GridPane.setHalignment(evaluationText, HPos.CENTER);
         GridPane.setValignment(evaluationText, VPos.CENTER);
         evaluationText.setFill(Color.rgb(219,216,214));
@@ -325,5 +332,40 @@ public class GUI {
             evaluationText.setText("Forced Checkmate");
         else
             evaluationText.setText(-evaluation / 10 + "");
+    }
+
+    public void undoButton() {
+        double sqSize = GUI.sqSize;
+        Button button = new Button("Undo");
+        button.setPrefWidth(sqSize);
+        button.setPrefHeight(sqSize);
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
+        button.setFont(font);
+        button.setTextFill(Color.rgb(219, 216, 214));
+        button.setStyle("-fx-background-color: rgb(57, 62, 70)");
+        button.setOnAction(actionEvent -> undoClicked());
+        Main.root.add(button, 8, 6);
+    }
+
+    MakeMove makeMove = new MakeMove();
+    MoveGenerator moveGenerator = new MoveGenerator();
+
+    private void undoClicked() {
+        if (!AI.thinking && MakeMove.moveLog.size() > 1) {
+            Main.root.getChildren().remove(startTile);
+            Main.root.getChildren().remove(endTile);
+            Move AIMove = makeMove.undoMove().setUndoMove();
+            int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
+            AIMove.setStartSq(endSq);
+            AIMove.setEndSq(startSq);
+            moveImages(AIMove);
+            Move playerMove = makeMove.undoMove().setUndoMove();
+            startSq = playerMove.getStartSq();
+            endSq = playerMove.getEndSq();
+            playerMove.setStartSq(endSq);
+            playerMove.setEndSq(startSq);
+            moveImages(playerMove);
+            MouseHandler.moves = moveGenerator.generateLegalMoves();
+        }
     }
 }

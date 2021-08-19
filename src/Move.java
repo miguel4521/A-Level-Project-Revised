@@ -1,11 +1,13 @@
+import javafx.scene.image.ImageView;
+
 public class Move {
-    private final int startSq, endSq, pieceMoved, pieceCaptured;
+    private final int pieceMoved, pieceCaptured;
     private final boolean isDoubleSqMove, isCaptureMove;
-    private final int[] moveID;
+    private final int[] moveID, board;
     Piece p = new Piece();
     Board b = new Board();
-    private boolean isCastle, enPassantMove, isPromotion = false;
-    private final int[] board;
+    private int startSq, endSq;
+    private boolean isCastle, enPassantMove, isPromotion = false, isUndoMove;
 
     public Move(int startSq, int endSq) {
         this.startSq = startSq;
@@ -24,8 +26,16 @@ public class Move {
         return startSq;
     }
 
+    public void setStartSq(int startSq) {
+        this.startSq = startSq;
+    }
+
     public int getEndSq() {
         return endSq;
+    }
+
+    public void setEndSq(int endSq) {
+        this.endSq = endSq;
     }
 
     public int getPieceMoved() {
@@ -48,6 +58,15 @@ public class Move {
     public Move setEnPassantMove() {
         enPassantMove = true;
         return this;
+    }
+
+    public Move setUndoMove() {
+        isUndoMove = true;
+        return this;
+    }
+
+    public boolean isUndoMove() {
+        return isUndoMove;
     }
 
     public boolean isCastle() {

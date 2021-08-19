@@ -37,7 +37,7 @@ public class MakeMove {
         Board.whiteToMove = !Board.whiteToMove;
     }
 
-    public void undoMove() {
+    public Move undoMove() {
         if (!moveLog.isEmpty()) {
             Move move = moveLog.get(moveLog.size() - 1);
             moveLog.remove(moveLog.size() - 1);
@@ -56,7 +56,9 @@ public class MakeMove {
             if (move.isCastle())
                 undoCastleMove(move);
             Board.whiteToMove = !Board.whiteToMove;
+            return move;
         }
+        return null;
     }
 
     private void doEnpassantMove(Move move) {
