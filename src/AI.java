@@ -90,6 +90,8 @@ public class AI implements Runnable {
                 e.printStackTrace();
             }
         }
+        if (move != null)
+            gui.updateEvaluation(-1);
         if (move == null)
             move = ms.startSearch();
         if (move == null)

@@ -30,6 +30,7 @@ public class Main extends Application {
         gui.drawDifficultyPanel();
         gui.drawEvaluation();
         gui.undoButton();
+        gui.drawCapturedPiecesPanel();
 
         window.setOnCloseRequest(t -> {
             Platform.exit();

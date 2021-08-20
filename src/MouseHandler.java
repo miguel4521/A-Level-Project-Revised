@@ -22,10 +22,8 @@ public class MouseHandler {
             int file = (int) e.getX() / GUI.sqSize;
             int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
-            if (!AI.thinking) {
                 if (square < 128)
                     moveClick(square, rank, file);
-            }
         };
         stage.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
     }
@@ -38,25 +36,28 @@ public class MouseHandler {
             gui.drawSquare(rank, file);
             gui.drawLegalMoves(square, moves);
         }
-        if (squareSelected != square) {
-            int[] moveID = new int[]{squareSelected, square};
-            for (Move legalMove : moves) {
-                if (Arrays.equals(legalMove.getMoveID(), moveID)) {
-                    gui.removeSquare();
-                    makeMove.makeMove(legalMove);
-                    gui.moveImages(legalMove);
-                    squareSelected = -1;
-                    ai.addToChessNotationMoveLog(legalMove, moves);
-                    Board.fenHistory.add(b.loadFenFromBoard());
-                    doAIMove();
-                    //moves = moveGenerator.generateLegalMoves();
-                } else
-                    squareSelected = square;
+        if (!AI.thinking) {
+            if (squareSelected != square) {
+                int[] moveID = new int[]{squareSelected, square};
+                for (Move legalMove : moves) {
+                    if (Arrays.equals(legalMove.getMoveID(), moveID)) {
+                        gui.removeSquare();
+                        makeMove.makeMove(legalMove);
+                        gui.moveImages(legalMove);
+                        squareSelected = -1;
+                        ai.addToChessNotationMoveLog(legalMove, moves);
+                        Board.fenHistory.add(b.loadFenFromBoard());
+                        doAIMove();
+                        //moves = moveGenerator.generateLegalMoves();
+                        break;
+                    } else
+                        squareSelected = square;
+                }
+            } else {
+                gui.removeSquare();
+                gui.destroyCircles();
+                squareSelected = -1;
             }
-        } else {
-            gui.removeSquare();
-            gui.destroyCircles();
-            squareSelected = -1;
         }
     }
 
