@@ -18,11 +18,12 @@ public class MoveSearch {
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
 
-    public static int MAX_DISTANCE = 2;
+    private static int MIN_DISTANCE = 3;
+    public static int MAX_DISTANCE = 4;
 
     public Move startSearch() {
         timeStarted = System.currentTimeMillis();
-        for (int searchDepth = 1; searchDepth <= MAX_DISTANCE; searchDepth++) {
+        for (int searchDepth = MIN_DISTANCE; searchDepth <= MAX_DISTANCE; searchDepth++) {
             moveSearch(MAX_DISTANCE, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
             if (abortSearch)
                 break;

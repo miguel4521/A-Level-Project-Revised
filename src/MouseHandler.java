@@ -12,7 +12,7 @@ public class MouseHandler {
     MakeMove makeMove = new MakeMove();
     MoveGenerator moveGenerator = new MoveGenerator();
     AI ai = new AI();
-    private int squareSelected = -1;
+    public static int squareSelected = -1;
     public static Thread task;
     int[] board;
 

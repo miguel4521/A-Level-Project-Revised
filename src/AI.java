@@ -85,7 +85,7 @@ public class AI implements Runnable {
             move = randomOpeningMove();
         if (move != null && !MakeMove.moveLog.isEmpty()) {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

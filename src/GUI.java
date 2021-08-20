@@ -158,16 +158,29 @@ public class GUI {
             }
         }
         if (move.isCastle())
-            if (startFile - endFile == 2) {
-                images[endRank][3] = images[endRank][0];
-                images[endRank][0] = null;
+            if (move.isUndoMove()) {
+                if (startFile - endFile == -2) {
+                    images[endRank][0] = images[endRank][3];
+                    images[endRank][3] = null;
+                } else {
+                    images[endRank][7] = images[endRank][5];
+                    images[endRank][5] = null;
+                }
             } else {
-                images[endRank][5] = images[endRank][7];
-                images[endRank][7] = null;
+                if (startFile - endFile == 2) {
+                    images[endRank][3] = images[endRank][0];
+                    images[endRank][0] = null;
+                } else {
+                    images[endRank][5] = images[endRank][7];
+                    images[endRank][7] = null;
+                }
             }
         if (move.isPromotion()) {
             images[endRank][endFile].setImage(null);
-            images[endRank][endFile] = placeImage(endRank, endFile, move.getPieceMoved() > 0 ? 5 : -5, Main.root);
+            if (move.isUndoMove())
+                images[endRank][endFile] = placeImage(endRank, endFile, move.getPieceMoved() > 0 ? 1 : -1, Main.root);
+             else
+                images[endRank][endFile] = placeImage(endRank, endFile, move.getPieceMoved() > 0 ? 5 : -5, Main.root);
         }
         ImageView finalImage = image;
         executorService.schedule(() -> {
@@ -196,18 +209,30 @@ public class GUI {
         transition.setDuration(Duration.seconds(0.2));
         transition.play();
         if (move.isCastle()) {
+            ImageView rookImage;
             Line rookPath = new Line();
             rookPath.setStartY(startRank * sqSize + (sqSize >> 1));
             rookPath.setEndY(endRank * sqSize + (sqSize >> 1));
-            ImageView rookImage;
-            if (startFile - endFile == 2) { // Left castle
-                rookPath.setStartX(sqSize >> 1);
-                rookPath.setEndX(3 * sqSize + (sqSize >> 1));
-                rookImage = images[startRank][0];
+            if (move.isUndoMove()) {
+                if (startFile - endFile == -2) {
+                    rookPath.setStartX(3 * sqSize + (sqSize >> 1));
+                    rookPath.setEndX(sqSize >> 1);
+                    rookImage = images[startRank][3];
+                } else {
+                    rookPath.setStartX(5 * sqSize + (sqSize >> 1));
+                    rookPath.setEndX(7 * sqSize + (sqSize >> 1));
+                    rookImage = images[startRank][5];
+                }
             } else {
-                rookPath.setStartX(7 * sqSize + (sqSize >> 1));
-                rookPath.setEndX(5 * sqSize + (sqSize >> 1));
-                rookImage = images[startRank][7];
+                if (startFile - endFile == 2) { // Left castle
+                    rookPath.setStartX(sqSize >> 1);
+                    rookPath.setEndX(3 * sqSize + (sqSize >> 1));
+                    rookImage = images[startRank][0];
+                } else {
+                    rookPath.setStartX(7 * sqSize + (sqSize >> 1));
+                    rookPath.setEndX(5 * sqSize + (sqSize >> 1));
+                    rookImage = images[startRank][7];
+                }
             }
             PathTransition rookTransition = new PathTransition();
             rookTransition.setPath(rookPath);
@@ -328,8 +353,8 @@ public class GUI {
     public void updateEvaluation(double evaluation) {
         if (evaluation == -1)
             evaluationText.setText("Book Move");
-        else if (p.plusOrMinus((int) Double.POSITIVE_INFINITY) == evaluation)
-            evaluationText.setText("Forced Checkmate");
+        else if (evaluation == Double.POSITIVE_INFINITY || evaluation == Double.NEGATIVE_INFINITY)
+            evaluationText.setText("Forced Checkmate Found");
         else
             evaluationText.setText(-evaluation / 10 + "");
     }
@@ -366,6 +391,10 @@ public class GUI {
             playerMove.setEndSq(startSq);
             moveImages(playerMove);
             MouseHandler.moves = moveGenerator.generateLegalMoves();
+            MouseHandler.squareSelected = -1;
+            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+            evaluationText.setText("Evaluation reset");
         }
     }
 }
