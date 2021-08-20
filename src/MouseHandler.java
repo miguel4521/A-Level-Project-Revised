@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class MouseHandler {
-    GUI gui = new GUI();
     public static ArrayList<Move> moves = new ArrayList<>();
+    public static int squareSelected = -1;
+    public static Thread task;
+    GUI gui = new GUI();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
     MoveGenerator moveGenerator = new MoveGenerator();
     AI ai = new AI();
-    public static int squareSelected = -1;
-    public static Thread task;
-    int[] board;
+    private static int[] board;
 
     public void mouseClick(Stage stage) {
         moves = moveGenerator.generateLegalMoves();
@@ -22,8 +22,8 @@ public class MouseHandler {
             int file = (int) e.getX() / GUI.sqSize;
             int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
-                if (square < 128)
-                    moveClick(square, rank, file);
+            if (square < 128)
+                moveClick(square, rank, file);
         };
         stage.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
     }
@@ -32,11 +32,11 @@ public class MouseHandler {
         gui.destroyCircles();
         if (!AI.thinking)
             board = Board.board;
-        if (board[square] != 0) {
+        if (board[square] != 0)
             gui.drawSquare(rank, file);
-            gui.drawLegalMoves(square, moves);
-        }
         if (!AI.thinking) {
+            if (board[square] != 0)
+                gui.drawLegalMoves(square, moves);
             if (squareSelected != square) {
                 int[] moveID = new int[]{squareSelected, square};
                 for (Move legalMove : moves) {
