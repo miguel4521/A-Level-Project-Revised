@@ -1,29 +1,25 @@
 import javafx.animation.PathTransition;
 import javafx.geometry.HPos;
-import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -92,7 +88,7 @@ public class GUI {
     }
 
     private ImageView placeImage(int rank, int file, int piece, GridPane root) {
-        Image image = loadImage("src/assets/" + piece + ".png");
+        Image image = loadImage("/Assets/" + piece + ".png");
         ImageView imageView = new ImageView(image);
         imageView.setX(file * sqSize);
         imageView.setY(rank * sqSize);
@@ -103,36 +99,7 @@ public class GUI {
     }
 
     private Image loadImage(String FileName) {
-        // Image is initialised
-        Image img = null;
-        try {
-            // this gets the image from the directory entered
-            img = new Image(new FileInputStream(FileName));
-        } catch (FileNotFoundException e) {
-            // Checks if an error has been found before, so that multiple alerts aren't shown
-            if (!errorFound) {
-                errorFound = true;
-                // Initialises window
-                Stage errorWindow = new Stage();
-                errorWindow.initModality(Modality.APPLICATION_MODAL);
-
-                Label label = new Label();
-                label.setText("Error, image of piece cannot be found.\nRe-download the application");
-                Button closeButton = new Button("Ok");
-                closeButton.setOnAction(event -> errorWindow.close());
-
-                VBox layout = new VBox(10);
-                layout.getChildren().addAll(label, closeButton);
-                layout.setAlignment(Pos.CENTER);
-
-                Scene scene = new Scene(layout);
-                errorWindow.setScene(scene);
-                errorWindow.setTitle("Error");
-                errorWindow.initStyle(StageStyle.UTILITY);
-                errorWindow.show();
-            }
-        }
-        return img;
+        return new Image(Objects.requireNonNull(this.getClass().getResourceAsStream(FileName)));
     }
 
     public void moveImages(Move move) {
@@ -420,7 +387,8 @@ public class GUI {
         double sqSize = GUI.sqSize;
         if (capturedPiece == 0)
             return;
-        Image image = loadImage("src/assets/" + capturedPiece + ".png");
+        System.out.println(capturedPiece);
+        Image image = loadImage("/Assets/" + capturedPiece + ".png");
         ImageView imageView = new ImageView(image);
         imageView.setFitHeight(sqSize / 2);
         imageView.setFitWidth(sqSize / 2);

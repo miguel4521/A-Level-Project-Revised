@@ -1,12 +1,12 @@
 import javafx.application.Platform;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class AI implements Runnable {
+    public static boolean thinking = false;
     static ArrayList<String> chessNotationMoveLog = new ArrayList<>();
     private final Move[] openingMoves = {new Move(118, 85), new Move(100, 68), new Move(98, 66)};
     //<editor-fold desc="HashMaps">
@@ -72,7 +72,6 @@ public class AI implements Runnable {
     GUI gui = new GUI();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
-    public static boolean thinking = false;
 
     @Override
     public void run() {
@@ -159,17 +158,11 @@ public class AI implements Runnable {
 
     private String findMove(String chessNotationLog) {
         ArrayList<String> linesWithMoves = new ArrayList<>();
-        Scanner sc2 = null;
         // Split every move into an array
         String[] pMove = chessNotationLog.split(" ");
-        try {
-            sc2 = new Scanner(new FileInputStream("src/Book"));
-        } catch (FileNotFoundException ignored) {
-        }
+        Scanner sc2 = new Scanner(Objects.requireNonNull(getClass().getResourceAsStream("Book")));
         // Go through every line in the file until the end.
-        while (true) {
-            assert sc2 != null;
-            if (!sc2.hasNextLine()) break;
+        while (sc2.hasNextLine()) {
             String line = sc2.nextLine();
             // The grandmaster's move
             String[] gmMove = line.split(" ");
