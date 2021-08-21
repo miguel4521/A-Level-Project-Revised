@@ -19,12 +19,6 @@ public class MoveGenerator extends Board {
             whiteToMove = !whiteToMove;
             makeMove.undoMove();
         }
-        if (moves.isEmpty()) {
-/*            if (inCheck())
-                System.out.println("checkmate");
-            else
-                System.out.println("stalemate");*/
-        }
         return moves;
     }
 
@@ -161,23 +155,22 @@ public class MoveGenerator extends Board {
             if (isSq(sq + NW) && (board[sq + NW] < 0))
                 moves.add(new Move(sq, sq + NW));
             if (isSq(sq + vectors[3]) && board[sq + vectors[3]] == -1 &&
-                    sq + vectors[3] == MakeMove.doublePawnAdvanceDestination) {
-                moves.add(new Move(sq, sq + vectors[5]).setEnPassantMove());
-            }
+                    sq + vectors[3] == MakeMove.doublePawnAdvanceDestination)
+                moves.add(new Move(sq, sq + NE).setEnPassantMove());
             if (isSq(sq + vectors[2]) && board[sq + vectors[2]] == -1 &&
                     sq + vectors[2] == MakeMove.doublePawnAdvanceDestination)
-                moves.add(new Move(sq, sq + vectors[4]).setEnPassantMove());
+                moves.add(new Move(sq, sq + NW).setEnPassantMove());
         } else { // Diagonal captures for black
             if (isSq(sq + SE) && (board[sq + SE] > 0))
                 moves.add(new Move(sq, sq + SE));
             if (isSq(sq + SW) && (board[sq + SW] > 0))
                 moves.add(new Move(sq, sq + SW));
-            if (isSq(sq + vectors[3]) && sq + vectors[3] == 1 &&
+            if (isSq(sq + vectors[3]) && board[sq + vectors[3]] == 1 &&
                     sq + vectors[3] == MakeMove.doublePawnAdvanceDestination)
-                moves.add(new Move(sq, sq + vectors[7]).setEnPassantMove());
-            if (isSq(sq + vectors[2]) && sq + vectors[2] == 1 &&
+                moves.add(new Move(sq, sq + SW).setEnPassantMove());
+            if (isSq(sq + vectors[2]) && board[sq + vectors[2]] == 1 &&
                     sq + vectors[2] == MakeMove.doublePawnAdvanceDestination)
-                moves.add(new Move(sq, sq + vectors[6]).setEnPassantMove());
+                moves.add(new Move(sq, sq + SE).setEnPassantMove());
         }
     }
 
