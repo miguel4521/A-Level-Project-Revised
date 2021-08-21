@@ -82,6 +82,7 @@ public class AI implements Runnable {
                 System.out.println("Checkmate");
             else
                 System.out.println("Stalemate");
+            thinking = false;
             return;
         }
         String input = chessNotationMoveLog.toString().
@@ -108,6 +109,12 @@ public class AI implements Runnable {
         Move finalMove = move;
         Platform.runLater(() -> gui.moveImages(finalMove));
         Board.fenHistory.add(b.loadFenFromBoard());
+        if (MouseHandler.moves.isEmpty()) {
+            if (moveGenerator.inCheck())
+                System.out.println("Checkmate");
+            else
+                System.out.println("Stalemate");
+        }
         thinking = false;
     }
 
