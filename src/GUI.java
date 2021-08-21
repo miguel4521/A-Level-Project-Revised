@@ -1,4 +1,5 @@
 import javafx.animation.PathTransition;
+import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -39,7 +40,6 @@ public class GUI {
     private static int blackPiecesCaptured = 0;
     Piece p = new Piece();
     Board b = new Board();
-    boolean errorFound = false;
     MakeMove makeMove = new MakeMove();
     MoveGenerator moveGenerator = new MoveGenerator();
 
@@ -305,7 +305,8 @@ public class GUI {
         double sqSize = GUI.sqSize;
         createPanel(0);
         // Create the text
-        Text text = new Text(sqSize, sqSize, "Difficulty - Hard\n     ELO 1500");
+        Text text = new Text(sqSize, sqSize, "Difficulty - Hard\nELO 1500");
+        text.setTextAlignment(TextAlignment.CENTER);
         text.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3));
         GridPane.setHalignment(text, HPos.CENTER);
         GridPane.setValignment(text, VPos.CENTER);
@@ -342,8 +343,6 @@ public class GUI {
 
     private void undoClicked() {
         if (!AI.thinking && MakeMove.moveLog.size() > 1) {
-            Main.root.getChildren().remove(startTile);
-            Main.root.getChildren().remove(endTile);
             Move AIMove = makeMove.undoMove().setUndoMove();
             int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
             AIMove.setStartSq(endSq);
@@ -356,7 +355,6 @@ public class GUI {
             playerMove.setEndSq(startSq);
             moveImages(playerMove);
             MouseHandler.moves = moveGenerator.generateLegalMoves();
-            MouseHandler.squareSelected = -1;
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             if (!Board.fenHistory.isEmpty())
@@ -383,7 +381,6 @@ public class GUI {
         double sqSize = GUI.sqSize;
         if (capturedPiece == 0)
             return;
-        System.out.println(capturedPiece);
         Image image = loadImage("/Assets/" + capturedPiece + ".png");
         ImageView imageView = new ImageView(image);
         imageView.setFitHeight(sqSize / 2);
@@ -416,8 +413,6 @@ public class GUI {
     public void newGameButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("New Game");
-        button.setWrapText(true);
-        button.setTextAlignment(TextAlignment.CENTER);
         createButton(sqSize, button);
         button.setTranslateX(sqSize);
         button.setOnAction(actionEvent -> createNewGame());
@@ -430,11 +425,28 @@ public class GUI {
         Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
         button.setFont(font);
         button.setTextFill(Color.rgb(219, 216, 214));
+        button.setWrapText(true);
+        button.setTextAlignment(TextAlignment.CENTER);
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
     }
 
+
     private void createNewGame() {
-        for (int i = MakeMove.moveLog.size(); i -- > 0;)
+        MouseHandler mouseHandler = new MouseHandler();
+        for (int i = MakeMove.moveLog.size(); i-- > 0; )
             undoClicked();
+        if (MakeMove.moveLog.size() == 1) {
+            Move AIMove = makeMove.undoMove().setUndoMove();
+            int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
+            AIMove.setStartSq(endSq);
+            AIMove.setEndSq(startSq);
+            moveImages(AIMove);
+            MouseHandler.moves = moveGenerator.generateLegalMoves();
+            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+            if (!Board.fenHistory.isEmpty())
+                Board.fenHistory.remove(Board.fenHistory.size() - 1);
+            evaluationText.setText("Evaluation reset");
+            mouseHandler.doAIMove();
+        }
     }
 }

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 public class MoveSearch {
@@ -18,7 +19,7 @@ public class MoveSearch {
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
 
-    private static int MIN_DISTANCE = 3;
+    private static int MIN_DISTANCE = 1;
     public static int MAX_DISTANCE = 4;
 
     public Move startSearch() {
@@ -31,8 +32,11 @@ public class MoveSearch {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
+                System.out.println(currentIterativeSearchDepth);
             }
         }
+        if (bestMove == null)
+            return bestMoveThisIteration;
         return bestMove;
     }
 
@@ -46,7 +50,7 @@ public class MoveSearch {
             return 0;
         if (plyFromRoot > 0) {
             if (drawByRepetition()) // Prevent draw by repetition
-                return 0;
+                return -1000;
             alpha = Math.max(alpha, -CHECKMATE + plyFromRoot);
             beta = Math.min(beta, CHECKMATE - plyFromRoot);
             if (alpha >= beta)
@@ -75,54 +79,20 @@ public class MoveSearch {
                     bestEvalThisIteration = eval;
                     bestMoveThisIteration = move;
                     gui.updateEvaluation(bestEvalThisIteration);
-                    bestMove = move;
+                   //bestMove = move;
                 }
             }
         }
         return alpha;
     }
 
-/*    private boolean drawByRepetition() {
+    private boolean drawByRepetition() {
         int counter = 0;
         for (String fen : Board.fenHistory) {
             if (Objects.equals(fen, b.loadFenFromBoard()))
                 counter++;
-            if (counter > 1)
+            if (counter > 0)
                 return true;
-        }
-        return false;
-    }*/
-
-    private boolean drawByRepetition() {
-        Move[] chainList = new Move[24];
-        Move m;
-        int c = 0, i;
-        for (i = 0; i < 24; i++)
-            chainList[i] = null;
-        loop:
-        for (i = MakeMove.moveLog.size(); i -- > 0;) {
-            m = MakeMove.moveLog.get(i);
-            if (!m.isIrreversible()) {
-                for (i = 0; i < 24; i++) {
-                    if (chainList[i] != null && m.getEndSq() == chainList[i].getStartSq()) {
-                        if (m.getStartSq() == chainList[i].getEndSq()) {
-                            if (c-- == 0)
-                                return true;
-                            chainList[i] = null;
-                            continue loop;
-                        }
-                        chainList[i].setStartSq(m.getStartSq());
-                        continue loop;
-                    }
-                }
-                for (i = 0; i < 24; i++) {
-                    if (chainList[i] == null) {
-                        chainList[i] = m;
-                        c++;
-                        continue loop;
-                    }
-                }
-            }
         }
         return false;
     }

@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class MouseHandler {
     public static ArrayList<Move> moves = new ArrayList<>();
-    public static int squareSelected = -1;
+    public static int squareSelected;
     public static Thread task;
     GUI gui = new GUI();
     Board b = new Board();
@@ -21,7 +21,6 @@ public class MouseHandler {
             int file = (int) e.getX() / GUI.sqSize;
             int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
-            System.out.println("Square " + square + " clicked");
             if (square < 128)
                 moveClick(square, rank, file);
         };
@@ -44,9 +43,9 @@ public class MouseHandler {
                         gui.removeSquare();
                         makeMove.makeMove(legalMove);
                         gui.moveImages(legalMove);
-                        squareSelected = -1;
                         ai.addToChessNotationMoveLog(legalMove, moves);
                         Board.fenHistory.add(b.loadFenFromBoard());
+                        squareSelected = -1;
                         doAIMove();
                         //moves = moveGenerator.generateLegalMoves();
                         break;
@@ -54,9 +53,8 @@ public class MouseHandler {
                         squareSelected = square;
                 }
             } else {
-                gui.removeSquare();
                 gui.destroyCircles();
-                squareSelected = -1;
+                gui.removeSquare();
             }
         }
     }

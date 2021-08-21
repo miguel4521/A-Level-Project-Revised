@@ -19,13 +19,13 @@ public class Main extends Application {
         // The colour is the background colour of the board
         window.setScene(new Scene(root, GUI.boardSize + GUI.sqSize * 3, GUI.boardSize));
         window.setTitle("Chess");
-        window.setResizable(true);
+        window.setResizable(false);
         root.setStyle("-fx-background-color: rgb(34, 40, 49)");
 
         gui.drawBoard(root);
         gui.drawPieces(startFen, root);
         mouseHandler.mouseClick(window);
-        //mouseHandler.doAIMove();
+        mouseHandler.doAIMove();
 
         gui.newGameButton();
         gui.drawDifficultyPanel();

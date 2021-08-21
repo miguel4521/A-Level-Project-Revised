@@ -18,13 +18,8 @@ public class Piece {
         return piece > 0 && colour == 1 || piece < 0 && colour == -1;
     }
 
-    public int pieceCount(int piece, boolean countWhite) {
-        int count = 0;
-        for (int i = 0; i < 120; i++) {
-            if (Board.board[i] == piece && isSameColour(piece, countWhite ? 1 : -1))
-                count++;
-        }
-        return count;
+    public int pieceType(int piece) {
+        return piece * (piece > 0 ? 1 : -1);
     }
 
 }

@@ -15,12 +15,12 @@ public class MoveOrdering {
 
             // Prioritise capturing opponent's most valuable pieces with less valuable pieces
             if (pieceCaptured != 0)
-                score = 20 * e.pieceValues.get(p.plusOrMinus(pieceMoved))
+                score = 10 * e.pieceValues.get(p.plusOrMinus(pieceMoved))
                         - e.pieceValues.get(p.plusOrMinus(pieceCaptured));
 
             // Promoting a pawn is good
             if (move.isPromotion())
-                score += e.pieceValues.get(5);
+                score += e.pieceValues.get(p.queen);
             moveScores.add(score);
         }
         sortMoves(moveScores, moves);
