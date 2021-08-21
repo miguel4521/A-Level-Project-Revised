@@ -82,13 +82,47 @@ public class MoveSearch {
         return alpha;
     }
 
-    private boolean drawByRepetition() {
+/*    private boolean drawByRepetition() {
         int counter = 0;
         for (String fen : Board.fenHistory) {
             if (Objects.equals(fen, b.loadFenFromBoard()))
                 counter++;
-            if (counter > 0)
+            if (counter > 1)
                 return true;
+        }
+        return false;
+    }*/
+
+    private boolean drawByRepetition() {
+        Move[] chainList = new Move[24];
+        Move m;
+        int c = 0, i;
+        for (i = 0; i < 24; i++)
+            chainList[i] = null;
+        loop:
+        for (i = MakeMove.moveLog.size(); i -- > 0;) {
+            m = MakeMove.moveLog.get(i);
+            if (!m.isIrreversible()) {
+                for (i = 0; i < 24; i++) {
+                    if (chainList[i] != null && m.getEndSq() == chainList[i].getStartSq()) {
+                        if (m.getStartSq() == chainList[i].getEndSq()) {
+                            if (c-- == 0)
+                                return true;
+                            chainList[i] = null;
+                            continue loop;
+                        }
+                        chainList[i].setStartSq(m.getStartSq());
+                        continue loop;
+                    }
+                }
+                for (i = 0; i < 24; i++) {
+                    if (chainList[i] == null) {
+                        chainList[i] = m;
+                        c++;
+                        continue loop;
+                    }
+                }
+            }
         }
         return false;
     }
