@@ -27,6 +27,7 @@ public class Main extends Application {
         mouseHandler.mouseClick(window);
         //mouseHandler.doAIMove();
 
+        gui.newGameButton();
         gui.drawDifficultyPanel();
         gui.drawEvaluation();
         gui.undoButton();

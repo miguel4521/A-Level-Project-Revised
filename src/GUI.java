@@ -15,6 +15,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 
 import java.awt.*;
@@ -334,12 +335,7 @@ public class GUI {
     public void undoButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("Undo");
-        button.setPrefWidth(sqSize);
-        button.setPrefHeight(sqSize);
-        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
-        button.setFont(font);
-        button.setTextFill(Color.rgb(219, 216, 214));
-        button.setStyle("-fx-background-color: rgb(57, 62, 70)");
+        createButton(sqSize, button);
         button.setOnAction(actionEvent -> undoClicked());
         Main.root.add(button, 8, 6);
     }
@@ -415,5 +411,30 @@ public class GUI {
             else
                 whitePiecesCaptured--;
         }
+    }
+
+    public void newGameButton() {
+        double sqSize = GUI.sqSize;
+        Button button = new Button("New Game");
+        button.setWrapText(true);
+        button.setTextAlignment(TextAlignment.CENTER);
+        createButton(sqSize, button);
+        button.setTranslateX(sqSize);
+        button.setOnAction(actionEvent -> createNewGame());
+        Main.root.add(button, 8, 6);
+    }
+
+    private void createButton(double sqSize, Button button) {
+        button.setPrefWidth(sqSize);
+        button.setPrefHeight(sqSize);
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
+        button.setFont(font);
+        button.setTextFill(Color.rgb(219, 216, 214));
+        button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
+    }
+
+    private void createNewGame() {
+        for (int i = MakeMove.moveLog.size(); i -- > 0;)
+            undoClicked();
     }
 }

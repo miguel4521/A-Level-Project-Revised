@@ -77,6 +77,13 @@ public class AI implements Runnable {
     public void run() {
         thinking = true;
         ArrayList<Move> legalMoves = moveGenerator.generateLegalMoves();
+        if (legalMoves.isEmpty()) {
+            if (moveGenerator.inCheck())
+                System.out.println("Checkmate");
+            else
+                System.out.println("Stalemate");
+            return;
+        }
         String input = chessNotationMoveLog.toString().
                 replace("[", "").replace("]", "").replace(",", "");
         Move move = notationToMove(findMove(input), legalMoves);
