@@ -180,11 +180,11 @@ public class MoveGenerator extends Board {
 
     private void generateSlidingMoves(int sq, boolean white, ArrayList<Move> moves) {
         int piece = board[sq];
-        if (p.isPiece(piece, 3))
+        if (p.isPiece(piece, p.bishop))
             generateSlidingPieceMoves(sq, white, moves, 4, 8);
-        else if (p.isPiece(piece, 4))
+        else if (p.isPiece(piece, p.rook))
             generateSlidingPieceMoves(sq, white, moves, 0, 4);
-        else if (p.isPiece(piece, 5))
+        else if (p.isPiece(piece, p.queen))
             generateSlidingPieceMoves(sq, white, moves, 0, 8);
     }
 
