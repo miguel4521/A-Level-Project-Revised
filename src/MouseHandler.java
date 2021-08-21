@@ -14,7 +14,6 @@ public class MouseHandler {
     MakeMove makeMove = new MakeMove();
     MoveGenerator moveGenerator = new MoveGenerator();
     AI ai = new AI();
-    private static int[] board;
 
     public void mouseClick(Stage stage) {
         moves = moveGenerator.generateLegalMoves();
@@ -22,6 +21,7 @@ public class MouseHandler {
             int file = (int) e.getX() / GUI.sqSize;
             int rank = (int) e.getY() / GUI.sqSize;
             int square = b.getSquare(rank, file);
+            System.out.println("Square " + square + " clicked");
             if (square < 128)
                 moveClick(square, rank, file);
         };
@@ -30,12 +30,12 @@ public class MouseHandler {
 
     private void moveClick(int square, int rank, int file) {
         gui.destroyCircles();
-        if (!AI.thinking)
-            board = Board.board;
-        if (board[square] != 0)
+        if (rank > 7 || file > 7)
+            return;
+        if (GUI.images[rank][file] != null)
             gui.drawSquare(rank, file);
         if (!AI.thinking) {
-            if (board[square] != 0)
+            if (Board.board[square] != 0)
                 gui.drawLegalMoves(square, moves);
             if (squareSelected != square) {
                 int[] moveID = new int[]{squareSelected, square};
