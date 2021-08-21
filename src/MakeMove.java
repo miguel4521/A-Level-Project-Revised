@@ -117,6 +117,17 @@ public class MakeMove {
 
     private void updateCastlingRights(Move move) {
         int file = b.getFile(move.getStartSq());
+        if (move.getPieceCaptured() == -p.rook) {
+            if (b.getFile(move.getEndSq()) == 7)
+                castlingRights[0] = false;
+            else
+                castlingRights[1] = false;
+        } else if (move.getPieceCaptured() == p.rook) {
+            if (b.getFile(move.getEndSq()) == 7)
+                castlingRights[2] = false;
+            else
+                castlingRights[3] = false;
+        }
         if (move.getPieceMoved() == -p.rook) { // If black
             if (file == 7) // Change rights for left or right
                 castlingRights[0] = false;
