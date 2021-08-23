@@ -85,6 +85,26 @@ public class AI implements Runnable {
             thinking = false;
             return;
         }
+        Move move = generateMove(legalMoves);
+        addToChessNotationMoveLog(move, legalMoves);
+        makeMove.makeMove(move);
+        Platform.runLater(() -> {
+            gui.moveImages(move);
+            GUI.hintButton.setText("Hint?");
+        });
+        Board.fenHistory.add(b.loadFenFromBoard());
+        MouseHandler.moves = moveGenerator.generateLegalMoves();
+        if (MouseHandler.moves.isEmpty()) {
+            if (moveGenerator.inCheck())
+                System.out.println("Checkmate");
+            else
+                System.out.println("Stalemate");
+        }
+        gui.generateHint();
+        thinking = false;
+    }
+
+    public Move generateMove(ArrayList<Move> legalMoves) {
         String input = chessNotationMoveLog.toString().
                 replace("[", "").replace("]", "").replace(",", "");
         Move move = notationToMove(findMove(input), legalMoves);
@@ -103,19 +123,7 @@ public class AI implements Runnable {
             move = ms.startSearch();
         if (move == null)
             move = legalMoves.get(getRandomNumber(legalMoves.size() - 1));
-        addToChessNotationMoveLog(move, legalMoves);
-        makeMove.makeMove(move);
-        MouseHandler.moves = moveGenerator.generateLegalMoves();
-        Move finalMove = move;
-        Platform.runLater(() -> gui.moveImages(finalMove));
-        Board.fenHistory.add(b.loadFenFromBoard());
-        if (MouseHandler.moves.isEmpty()) {
-            if (moveGenerator.inCheck())
-                System.out.println("Checkmate");
-            else
-                System.out.println("Stalemate");
-        }
-        thinking = false;
+        return move;
     }
 
     private Move randomOpeningMove() {

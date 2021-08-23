@@ -1,5 +1,3 @@
-import javafx.scene.image.ImageView;
-
 public class Move {
     private final int pieceMoved, pieceCaptured;
     private final boolean isDoubleSqMove, isCaptureMove, isIrreversible;
@@ -12,10 +10,10 @@ public class Move {
     public Move(int startSq, int endSq) {
         this.startSq = startSq;
         this.endSq = endSq;
-        this.pieceMoved = Board.board[startSq];
-        this.pieceCaptured = Board.board[endSq];
-        this.moveID = new int[]{startSq, endSq};
         board = Board.board;
+        this.pieceMoved = board[startSq];
+        this.pieceCaptured = board[endSq];
+        this.moveID = new int[]{startSq, endSq};
         isDoubleSqMove = p.isPiece(pieceMoved, p.pawn) && endSq - 32 == startSq || endSq + 32 == startSq;
         if (p.isPiece(getPieceMoved(), p.pawn) && (b.getRank(endSq) == 0 || b.getRank(endSq) == 7))
             isPromotion = true;

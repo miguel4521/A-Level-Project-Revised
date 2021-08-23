@@ -12,6 +12,7 @@ public class Main extends Application {
     public final String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     GUI gui = new GUI();
     MouseHandler mouseHandler = new MouseHandler();
+    public static boolean playerWhite = false;
 
     @Override
     public void start(Stage window) {
@@ -32,6 +33,7 @@ public class Main extends Application {
         gui.drawEvaluation();
         gui.undoButton();
         gui.drawCapturedPiecesPanel();
+        gui.createHintButton();
 
         window.setOnCloseRequest(t -> {
             Platform.exit();

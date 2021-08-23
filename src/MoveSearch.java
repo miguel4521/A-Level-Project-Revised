@@ -1,16 +1,16 @@
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 public class MoveSearch {
     private final int CHECKMATE = (int) Double.POSITIVE_INFINITY;
+    private
     MoveGenerator moveGenerator = new MoveGenerator();
     Evaluation e = new Evaluation();
     Board b = new Board();
     MoveOrdering moveOrdering = new MoveOrdering();
     MakeMove makeMove = new MakeMove();
     long timeStarted;
-    boolean abortSearch = false;
+    public static boolean abortSearch = false;
     int currentIterativeSearchDepth;
     Move bestMoveThisIteration;
     Move bestMove;
@@ -19,10 +19,11 @@ public class MoveSearch {
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
 
-    private static int MIN_DISTANCE = 1;
+    private static int MIN_DISTANCE = 3;
     public static int MAX_DISTANCE = 4;
 
     public Move startSearch() {
+        abortSearch = false;
         timeStarted = System.currentTimeMillis();
         for (int searchDepth = MIN_DISTANCE; searchDepth <= MAX_DISTANCE; searchDepth++) {
             moveSearch(MAX_DISTANCE, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
@@ -32,11 +33,8 @@ public class MoveSearch {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
-                System.out.println(currentIterativeSearchDepth);
             }
         }
-        if (bestMove == null)
-            return bestMoveThisIteration;
         return bestMove;
     }
 
@@ -45,12 +43,11 @@ public class MoveSearch {
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
-        abortSearch = outOfTime();
-        if (abortSearch)
+        if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
             return 0;
         if (plyFromRoot > 0) {
             if (drawByRepetition()) // Prevent draw by repetition
-                return -1000;
+                return -300;
             alpha = Math.max(alpha, -CHECKMATE + plyFromRoot);
             beta = Math.min(beta, CHECKMATE - plyFromRoot);
             if (alpha >= beta)
@@ -79,7 +76,7 @@ public class MoveSearch {
                     bestEvalThisIteration = eval;
                     bestMoveThisIteration = move;
                     gui.updateEvaluation(bestEvalThisIteration);
-                   //bestMove = move;
+                    bestMove = move;
                 }
             }
         }
@@ -99,6 +96,8 @@ public class MoveSearch {
 
     private int quiesceSearch(int alpha, int beta, int turnMultiplier) {
         int eval = e.evaluate(Board.board) * turnMultiplier;
+        if (abortSearch)
+            return 0;
         if (eval >= beta)
             return beta;
         if (eval > alpha)

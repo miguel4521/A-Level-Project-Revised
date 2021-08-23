@@ -1,5 +1,4 @@
 import javafx.animation.PathTransition;
-import javafx.application.Platform;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
@@ -21,6 +20,7 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -28,11 +28,14 @@ import java.util.concurrent.TimeUnit;
 
 public class GUI {
     static final int dimension = 8;
-    private static final StackPane startTile = new StackPane(), endTile = new StackPane();
+    private static final StackPane startTile = new StackPane(), endTile = new StackPane(),
+            startHintTile = new StackPane(), endHintTile = new StackPane();
     private static final ArrayList<Node> circles = new ArrayList<>();
     private static final StackPane square = new StackPane();
     private static final ArrayList<ImageView> capturedPieceImages = new ArrayList<>();
+    public static Button hintButton = new Button("Hint?");
     public static ImageView[][] images = new ImageView[8][8];
+    public static boolean showHint = false;
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
@@ -217,22 +220,15 @@ public class GUI {
     }
 
     private void showLastMove(Move move) {
-        String startSqColour, endSqColour;
         Main.root.getChildren().remove(startTile);
         Main.root.getChildren().remove(endTile);
         int startRank = b.getRank(move.getStartSq()), startFile = b.getFile(move.getStartSq()),
                 endRank = b.getRank(move.getEndSq()), endFile = b.getFile(move.getEndSq());
 
-        startSqColour = (startRank + startFile) % 2 == 0 ? "rgb(248,236,92)" : "rgb(224,196,52)";
-        endSqColour = (endRank + endFile) % 2 == 0 ? "rgb(248,236,92)" : "rgb(224,196,52)";
+        String startSqColour = (startRank + startFile) % 2 == 0 ? "rgb(248,236,92)" : "rgb(224,196,52)";
+        String endSqColour = (endRank + endFile) % 2 == 0 ? "rgb(248,236,92)" : "rgb(224,196,52)";
 
-        startTile.setStyle("-fx-background-color: " + startSqColour + ";");
-        endTile.setStyle("-fx-background-color: " + endSqColour + ";");
-        startTile.setViewOrder(2);
-        endTile.setViewOrder(2);
-
-        Main.root.add(startTile, startFile, startRank);
-        Main.root.add(endTile, endFile, endRank);
+        drawMove(startRank, startFile, endRank, endFile, startSqColour, endSqColour, startTile, endTile);
     }
 
     public void drawSquare(int rank, int file) {
@@ -266,7 +262,7 @@ public class GUI {
     public void drawLegalMoves(int square, ArrayList<Move> moves) {
         for (Move move : moves) {
             if (move.getStartSq() == square) {
-                if (move.getBoard()[move.getEndSq()] == 0)
+                if (move.getPieceCaptured() == 0)
                     drawEmptyCircle(move.getEndSq());
                 else
                     drawCaptureCircle(move.getEndSq());
@@ -327,8 +323,6 @@ public class GUI {
     public void updateEvaluation(double evaluation) {
         if (evaluation == -1)
             evaluationText.setText("Book Move");
-        else if (evaluation == Double.POSITIVE_INFINITY || evaluation == Double.NEGATIVE_INFINITY)
-            evaluationText.setText("Forced Checkmate Found");
         else
             evaluationText.setText(-evaluation / 10 + "");
     }
@@ -336,7 +330,7 @@ public class GUI {
     public void undoButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("Undo");
-        createButton(sqSize, button);
+        createButton(sqSize, sqSize, button);
         button.setOnAction(actionEvent -> undoClicked());
         Main.root.add(button, 8, 6);
     }
@@ -354,7 +348,7 @@ public class GUI {
             playerMove.setStartSq(endSq);
             playerMove.setEndSq(startSq);
             moveImages(playerMove);
-            MouseHandler.moves = moveGenerator.generateLegalMoves();
+            //MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             if (!Board.fenHistory.isEmpty())
@@ -413,23 +407,22 @@ public class GUI {
     public void newGameButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("New Game");
-        createButton(sqSize, button);
+        createButton(sqSize, sqSize, button);
         button.setTranslateX(sqSize);
         button.setOnAction(actionEvent -> createNewGame());
         Main.root.add(button, 8, 6);
     }
 
-    private void createButton(double sqSize, Button button) {
-        button.setPrefWidth(sqSize);
-        button.setPrefHeight(sqSize);
-        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
+    private void createButton(double width, double height, Button button) {
+        button.setPrefWidth(width);
+        button.setPrefHeight(height);
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, width / 5);
         button.setFont(font);
         button.setTextFill(Color.rgb(219, 216, 214));
         button.setWrapText(true);
         button.setTextAlignment(TextAlignment.CENTER);
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
     }
-
 
     private void createNewGame() {
         MouseHandler mouseHandler = new MouseHandler();
@@ -441,12 +434,69 @@ public class GUI {
             AIMove.setStartSq(endSq);
             AIMove.setEndSq(startSq);
             moveImages(AIMove);
-            MouseHandler.moves = moveGenerator.generateLegalMoves();
+            //MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             if (!Board.fenHistory.isEmpty())
                 Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
             mouseHandler.doAIMove();
         }
+    }
+
+    public void createHintButton() {
+        double sqSize = GUI.sqSize;
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3);
+        hintButton.setFont(font);
+        hintButton.setTextFill(Color.rgb(219, 216, 214));
+        hintButton.setTextAlignment(TextAlignment.CENTER);
+        hintButton.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
+        hintButton.setPrefHeight(sqSize);
+        hintButton.setPrefWidth(sqSize * 3);
+        hintButton.setOnAction(actionEvent -> showHint());
+        Main.root.add(hintButton, 8, 3);
+    }
+
+    public void generateHint() {
+        Runnable r = new GenerateHint();
+        Thread task = new Thread(r);
+        task.start();
+    }
+
+    private void showHint() {
+        if (!AI.thinking && !GenerateHint.hintGenerated) {
+            hintButton.setText("Generating Hint");
+            showHint = true;
+        }
+        else if (GenerateHint.hintGenerated && !AI.thinking) {
+            hintButton.setText("Hint generated");
+            drawHint(GenerateHint.move);
+        }
+    }
+
+    public void drawHint(Move move) {
+        Main.root.getChildren().remove(startHintTile);
+        Main.root.getChildren().remove(endHintTile);
+        int startRank = b.getRank(move.getStartSq()), startFile = b.getFile(move.getStartSq()),
+                endRank = b.getRank(move.getEndSq()), endFile = b.getFile(move.getEndSq());
+
+        String startSqHintColour = (startRank + startFile) % 2 == 0 ? "#A3BF45" : "#81A140";
+        String endSqHintColour = (endRank + endFile) % 2 == 0 ? "#A3BF45" : "#81A140";
+
+        drawMove(startRank, startFile, endRank, endFile, startSqHintColour, endSqHintColour, startHintTile, endHintTile);
+    }
+
+    private void drawMove(int startRank, int startFile, int endRank, int endFile, String startSqColour, String endSqColour, StackPane startHintTile, StackPane endHintTile) {
+        startHintTile.setStyle("-fx-background-color: " + startSqColour + ";");
+        endHintTile.setStyle("-fx-background-color: " + endSqColour + ";");
+        startHintTile.setViewOrder(2);
+        endHintTile.setViewOrder(2);
+
+        Main.root.add(startHintTile, startFile, startRank);
+        Main.root.add(endHintTile, endFile, endRank);
+    }
+
+    public void removeHint() {
+        Main.root.getChildren().remove(startHintTile);
+        Main.root.getChildren().remove(endHintTile);
     }
 }
