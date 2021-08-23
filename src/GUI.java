@@ -20,7 +20,6 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,6 +35,7 @@ public class GUI {
     public static Button hintButton = new Button("Hint?");
     public static ImageView[][] images = new ImageView[8][8];
     public static boolean showHint = false;
+    public static boolean undo = false;
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
@@ -324,7 +324,7 @@ public class GUI {
         if (evaluation == -1)
             evaluationText.setText("Book Move");
         else
-            evaluationText.setText(-evaluation / 10 + "");
+            evaluationText.setText((AI.thinking ? -1 : 1) * evaluation / 10 + "");
     }
 
     public void undoButton() {
@@ -335,26 +335,40 @@ public class GUI {
         Main.root.add(button, 8, 6);
     }
 
+    public static boolean cancelHint = false;
+
     private void undoClicked() {
         if (!AI.thinking && MakeMove.moveLog.size() > 1) {
-            Move AIMove = makeMove.undoMove().setUndoMove();
-            int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
-            AIMove.setStartSq(endSq);
-            AIMove.setEndSq(startSq);
-            moveImages(AIMove);
-            Move playerMove = makeMove.undoMove().setUndoMove();
-            startSq = playerMove.getStartSq();
-            endSq = playerMove.getEndSq();
-            playerMove.setStartSq(endSq);
-            playerMove.setEndSq(startSq);
-            moveImages(playerMove);
-            //MouseHandler.moves = moveGenerator.generateLegalMoves();
-            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-            if (!Board.fenHistory.isEmpty())
-                Board.fenHistory.remove(Board.fenHistory.size() - 1);
-            evaluationText.setText("Evaluation reset");
+            if (!GenerateHint.hintGenerated) {
+                MoveSearch.abortSearch = true;
+                showHint = false;
+                hintButton.setText("Hint?");
+                cancelHint = true;
+                GenerateHint.move = null;
+            } else
+                visualUndo();
         }
+    }
+
+    public void visualUndo() {
+        Move AIMove = makeMove.undoMove().setUndoMove();
+        int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
+        AIMove.setStartSq(endSq);
+        AIMove.setEndSq(startSq);
+        moveImages(AIMove);
+        Move playerMove = makeMove.undoMove().setUndoMove();
+        startSq = playerMove.getStartSq();
+        endSq = playerMove.getEndSq();
+        playerMove.setStartSq(endSq);
+        playerMove.setEndSq(startSq);
+        moveImages(playerMove);
+        MouseHandler.moves = moveGenerator.generateLegalMoves();
+        AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+        AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+        Board.fenHistory.remove(Board.fenHistory.size() - 1);
+        Board.fenHistory.remove(Board.fenHistory.size() - 1);
+        evaluationText.setText("Evaluation reset");
+        generateHint();
     }
 
     public void drawCapturedPiecesPanel() {
@@ -434,7 +448,7 @@ public class GUI {
             AIMove.setStartSq(endSq);
             AIMove.setEndSq(startSq);
             moveImages(AIMove);
-            //MouseHandler.moves = moveGenerator.generateLegalMoves();
+            MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             if (!Board.fenHistory.isEmpty())
                 Board.fenHistory.remove(Board.fenHistory.size() - 1);
@@ -466,8 +480,7 @@ public class GUI {
         if (!AI.thinking && !GenerateHint.hintGenerated) {
             hintButton.setText("Generating Hint");
             showHint = true;
-        }
-        else if (GenerateHint.hintGenerated && !AI.thinking) {
+        } else if (GenerateHint.hintGenerated && !AI.thinking) {
             hintButton.setText("Hint generated");
             drawHint(GenerateHint.move);
         }

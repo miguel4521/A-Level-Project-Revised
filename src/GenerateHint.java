@@ -2,12 +2,12 @@ import javafx.application.Platform;
 
 import java.util.ArrayList;
 
-public class GenerateHint implements Runnable{
+public class GenerateHint implements Runnable {
     public static boolean hintGenerated = false;
+    public static Move move;
     MoveGenerator moveGenerator = new MoveGenerator();
     AI ai = new AI();
     GUI gui = new GUI();
-    public static Move move;
 
     @Override
     public void run() {
@@ -28,5 +28,9 @@ public class GenerateHint implements Runnable{
             });
         }
         hintGenerated = true;
+        if (GUI.cancelHint) {
+            Platform.runLater(() -> gui.visualUndo());
+            GUI.cancelHint = false;
+        }
     }
 }

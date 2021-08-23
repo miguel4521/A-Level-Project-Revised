@@ -33,6 +33,7 @@ public class MoveSearch {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
+                System.out.println(currentIterativeSearchDepth);
             }
         }
         return bestMove;
