@@ -27,7 +27,7 @@ public class MoveSearch {
         timeStarted = System.currentTimeMillis();
         for (int searchDepth = MIN_DISTANCE; searchDepth <= MAX_DISTANCE; searchDepth++) {
             moveSearch(MAX_DISTANCE, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
-            if (abortSearch)
+            if (abortSearch || outOfTime())
                 break;
             else {
                 currentIterativeSearchDepth = searchDepth;
@@ -44,7 +44,7 @@ public class MoveSearch {
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
-        if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
+        if (abortSearch || outOfTime())
             return 0;
         if (plyFromRoot > 0) {
             if (drawByRepetition()) // Prevent draw by repetition

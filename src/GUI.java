@@ -291,8 +291,6 @@ public class GUI {
         // Create the panel
         Rectangle panel = new Rectangle(0, 0, sqSize * 3, sqSize);
         panel.setFill(Color.rgb(57, 62, 70));
-        panel.setArcWidth(sqSize / 6);
-        panel.setArcHeight(sqSize / 6);
         panel.setStroke(Color.rgb(34, 40, 49));
         Main.root.add(panel, 8, row);
     }
@@ -463,11 +461,11 @@ public class GUI {
         hintButton.setFont(font);
         hintButton.setTextFill(Color.rgb(219, 216, 214));
         hintButton.setTextAlignment(TextAlignment.CENTER);
-        hintButton.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
+        hintButton.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49);");
         hintButton.setPrefHeight(sqSize);
         hintButton.setPrefWidth(sqSize * 3);
         hintButton.setOnAction(actionEvent -> showHint());
-        Main.root.add(hintButton, 8, 3);
+        Main.root.add(hintButton, 8, 2);
     }
 
     public void generateHint() {
