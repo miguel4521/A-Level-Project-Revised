@@ -35,7 +35,8 @@ public class GUI {
     public static Button hintButton = new Button("Hint?");
     public static ImageView[][] images = new ImageView[8][8];
     public static boolean showHint = false;
-    public static boolean undo = false;
+    public static boolean cancelHint = false;
+    public static Text tipsText = new Text("");
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
@@ -333,8 +334,6 @@ public class GUI {
         Main.root.add(button, 8, 6);
     }
 
-    public static boolean cancelHint = false;
-
     private void undoClicked() {
         if (!AI.thinking && MakeMove.moveLog.size() > 1) {
             if (!GenerateHint.hintGenerated) {
@@ -366,6 +365,8 @@ public class GUI {
         Board.fenHistory.remove(Board.fenHistory.size() - 1);
         Board.fenHistory.remove(Board.fenHistory.size() - 1);
         evaluationText.setText("Evaluation reset");
+        Main.root.getChildren().remove(startHintTile);
+        Main.root.getChildren().remove(endHintTile);
         generateHint();
     }
 
@@ -502,6 +503,9 @@ public class GUI {
         startHintTile.setViewOrder(2);
         endHintTile.setViewOrder(2);
 
+        tipsText.setText(GenerateHint.hintText);
+        GenerateHint.hintText = "";
+
         Main.root.add(startHintTile, startFile, startRank);
         Main.root.add(endHintTile, endFile, endRank);
     }
@@ -509,5 +513,19 @@ public class GUI {
     public void removeHint() {
         Main.root.getChildren().remove(startHintTile);
         Main.root.getChildren().remove(endHintTile);
+    }
+
+    public void tipsPanel() {
+        double sqSize = GUI.sqSize;
+        Rectangle rectangle = new Rectangle(0, 0, sqSize * 3, sqSize * 3);
+        rectangle.setFill(Color.rgb(57, 62, 70));
+        rectangle.setStroke(Color.rgb(34, 40, 49));
+        tipsText.setFill(Color.rgb(219, 216, 214));
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 5);
+        tipsText.setFont(font);
+        tipsText.setWrappingWidth(sqSize * 3 - sqSize / 8);
+        GridPane.setHalignment(tipsText, HPos.CENTER);
+        Main.root.add(rectangle, 8, 4);
+        Main.root.add(tipsText, 8, 4);
     }
 }

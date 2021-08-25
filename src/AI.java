@@ -230,12 +230,12 @@ public class AI implements Runnable {
             if (chessNotationNextMove.equals("OO")) {
                 if (moveToTest.isCastle())
                     // King side castle
-                    return new Move(b.getSquare(startRank, 4), b.getSquare(endRank, 6)).setCastle();
+                    return new Move(b.getSquare(startRank, 4), b.getSquare(endRank, 6)).setCastle().setBookMove();
             } else if (chessNotationNextMove.equals("OOO")) {
                 if (moveToTest.isCastle())
                     // Queen side castle
                     // startRow, 4, endRow, 2
-                    return new Move(b.getSquare(startRank, 4), b.getSquare(endRank, 2)).setCastle();
+                    return new Move(b.getSquare(startRank, 4), b.getSquare(endRank, 2)).setCastle().setBookMove();
                 // This means it's a pawn because their moves don't start with their piece name
             } else if (filesToCols.containsKey(chessNotationNextMove.charAt(0))) {
                 // If the tested move isn't a pawn, continue
@@ -247,7 +247,7 @@ public class AI implements Runnable {
                     if (String.valueOf(targetFile).equals(colsToFiles.get(endFile)) &&
                             Character.getNumericValue(targetRank) == rowsToRanks.get(endRank)) {
                         // If it is, return the move
-                        return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile));
+                        return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile)).setBookMove();
                     }
                 }
             } else { // Regular piece move
@@ -261,14 +261,14 @@ public class AI implements Runnable {
                         String disambiguationChar = Character.toString(chessNotationNextMove.charAt(1));
                         if (chessNotationNextMove.contains(disambiguationChar)) { // File disambiguation
                             if (disambiguationChar.equals(colsToFiles.get(endFile)))
-                                return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile));
+                                return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile)).setBookMove();
                         } else { // Rank disambiguation
                             if (disambiguationChar.equals(rowsToRanks.get(startRank).toString()))
-                                return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile));
+                                return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile)).setBookMove();
                         }
                     }
                     // Not a disambiguation move
-                    return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile));
+                    return new Move(b.getSquare(startRank, startFile), b.getSquare(endRank, endFile)).setBookMove();
                 }
             }
         }

@@ -34,6 +34,7 @@ public class Main extends Application {
         gui.undoButton();
         gui.drawCapturedPiecesPanel();
         gui.createHintButton();
+        gui.tipsPanel();
 
         window.setOnCloseRequest(t -> {
             Platform.exit();

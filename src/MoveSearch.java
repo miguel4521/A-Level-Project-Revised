@@ -33,7 +33,6 @@ public class MoveSearch {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
-                System.out.println(currentIterativeSearchDepth);
             }
         }
         return bestMove;
@@ -44,7 +43,8 @@ public class MoveSearch {
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
-        if (abortSearch || outOfTime())
+        System.out.println(currentIterativeSearchDepth);
+        if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
             return 0;
         if (plyFromRoot > 0) {
             if (drawByRepetition()) // Prevent draw by repetition
@@ -54,8 +54,12 @@ public class MoveSearch {
             if (alpha >= beta)
                 return alpha;
         }
-        if (depth == 0)
+        if (depth == 0) {
+            if (currentIterativeSearchDepth > 0)
             return quiesceSearch(alpha, beta, turnMultiplier);
+            else
+                return e.evaluate(Board.board) * turnMultiplier;
+        }
         ArrayList<Move> moves = moveGenerator.generateLegalMoves();
         moveOrdering.orderMoves(moves);
         if (moves.isEmpty()) {
@@ -77,7 +81,7 @@ public class MoveSearch {
                     bestEvalThisIteration = eval;
                     bestMoveThisIteration = move;
                     gui.updateEvaluation(bestEvalThisIteration);
-                    bestMove = move;
+                    //bestMove = move;
                 }
             }
         }

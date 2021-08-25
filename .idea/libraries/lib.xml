@@ -3,7 +3,9 @@
     <CLASSES>
       <root url="file://$USER_HOME$/javafx-sdk-11.0.2/lib" />
     </CLASSES>
-    <JAVADOC />
+    <JAVADOC>
+      <root url="https://openjfx.io/javadoc/11/" />
+    </JAVADOC>
     <SOURCES>
       <root url="file://$USER_HOME$/javafx-sdk-11.0.2/lib" />
     </SOURCES>

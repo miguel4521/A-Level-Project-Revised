@@ -25,6 +25,9 @@ public class MouseHandler {
         stage.addEventFilter(MouseEvent.MOUSE_CLICKED, eventHandler);
     }
 
+    private static Move move;
+    public static boolean cancelMove = false;
+
     private void moveClick(int square, int rank, int file) {
         gui.destroyCircles();
         if (rank > 7 || file > 7)
@@ -38,20 +41,14 @@ public class MouseHandler {
                 int[] moveID = new int[]{squareSelected, square};
                 for (Move legalMove : moves) {
                     if (Arrays.equals(legalMove.getMoveID(), moveID)) {
-                        MoveSearch.abortSearch = true;
-                        gui.removeHint();
-                        gui.removeSquare();
-                        GUI.showHint = false;
-                        GenerateHint.move = null;
-
-                        GUI.hintButton.setText("AI's Move");
-                        makeMove.makeMove(legalMove);
-                        gui.moveImages(legalMove);
-                        ai.addToChessNotationMoveLog(legalMove, moves);
-                        Board.fenHistory.add(b.loadFenFromBoard());
-                        squareSelected = -1;
-                        doAIMove();
-                        //moves = moveGenerator.generateLegalMoves();
+                        move = legalMove;
+                        if (!GenerateHint.hintGenerated) {
+                            MoveSearch.abortSearch = true;
+                            cancelMove = true;
+                            GUI.cancelHint = true;
+                        }
+                        else
+                            completeMove();
                         break;
                     } else
                         squareSelected = square;
@@ -68,5 +65,24 @@ public class MouseHandler {
         Runnable r = new AI();
         task = new Thread(r);
         task.start();
+    }
+
+    public void completeMove() {
+        gui.removeHint();
+        gui.removeSquare();
+        GUI.showHint = false;
+        GenerateHint.move = null;
+        GUI.tipsText.setText("");
+
+        GUI.hintButton.setText("AI's Move");
+        makeMove.makeMove(move);
+        gui.moveImages(move);
+        ai.addToChessNotationMoveLog(move, moves);
+        Board.fenHistory.add(b.loadFenFromBoard());
+        squareSelected = -1;
+        doAIMove();
+        move = null;
+        GUI.tipsText.setText("");
+        //moves = moveGenerator.generateLegalMoves();
     }
 }

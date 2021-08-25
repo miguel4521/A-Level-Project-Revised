@@ -1,11 +1,11 @@
 public class Move {
     private final int pieceMoved, pieceCaptured;
-    private final boolean isDoubleSqMove, isCaptureMove, isIrreversible;
+    private final boolean isDoubleSqMove, isCaptureMove;
     private final int[] moveID, board;
     Piece p = new Piece();
     Board b = new Board();
     private int startSq, endSq;
-    private boolean isCastle, enPassantMove, isPromotion = false, isUndoMove;
+    private boolean isCastle, enPassantMove, isPromotion = false, isUndoMove, isBookMove;
 
     public Move(int startSq, int endSq) {
         this.startSq = startSq;
@@ -18,7 +18,6 @@ public class Move {
         if (p.isPiece(getPieceMoved(), p.pawn) && (b.getRank(endSq) == 0 || b.getRank(endSq) == 7))
             isPromotion = true;
         isCaptureMove = pieceCaptured != p.none;
-        isIrreversible = isCaptureMove || p.isPiece(pieceMoved, p.pawn);
     }
 
     public int getStartSq() {
@@ -49,6 +48,10 @@ public class Move {
         return moveID;
     }
 
+    public boolean isBookMove() {
+        return isBookMove;
+    }
+
     public Move setCastle() {
         isCastle = true;
         return this;
@@ -61,6 +64,11 @@ public class Move {
 
     public Move setUndoMove() {
         isUndoMove = true;
+        return this;
+    }
+
+    public Move setBookMove() {
+        isBookMove = true;
         return this;
     }
 
@@ -92,7 +100,4 @@ public class Move {
         return board;
     }
 
-    public boolean isIrreversible() {
-        return isIrreversible;
-    }
 }
