@@ -1,8 +1,13 @@
 import javafx.animation.PathTransition;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -32,16 +37,19 @@ public class GUI {
     private static final ArrayList<Node> circles = new ArrayList<>();
     private static final StackPane square = new StackPane();
     private static final ArrayList<ImageView> capturedPieceImages = new ArrayList<>();
+    private static final ToggleGroup boardThemeGroup = new ToggleGroup(), chooseColourGroup = new ToggleGroup();
     public static Button hintButton = new Button("Hint?");
     public static ImageView[][] images = new ImageView[8][8];
     public static boolean showHint = false;
     public static boolean cancelHint = false;
     public static Text tipsText = new Text("");
+    public static boolean newGame = false;
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
     private static int whitePiecesCaptured = 0;
     private static int blackPiecesCaptured = 0;
+    private static ArrayList<Node> boardNodes = new ArrayList<>();
     Piece p = new Piece();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
@@ -51,7 +59,10 @@ public class GUI {
         image.setImage(null);
     }
 
-    public void drawBoard(GridPane root) {
+    public void drawBoard(String lightColour, String darkColour, boolean init) {
+        for (Node node : boardNodes)
+            Main.root.getChildren().remove(node);
+        boardNodes.clear();
         String colour;
         // This is the start of the nested for loop
         for (int row = 0; row < dimension; row++) {
@@ -60,24 +71,27 @@ public class GUI {
                 StackPane boardTile = new StackPane();
                 // This makes every other colour alter, e.g. first tile is light, next tile is dark
                 if ((row + col) % 2 == 0)
-                    colour = "rgb(248,220,180)";
+                    colour = lightColour;
                 else
-                    colour = "rgb(184,140,100)";
+                    colour = darkColour;
                 // sets the colour of the tile
                 boardTile.setStyle("-fx-background-color: " + colour + ";");
                 boardTile.setViewOrder(3);
                 // adds the tile to the window, and sets where the pane needs to go
-                root.add(boardTile, col, row);
+                Main.root.add(boardTile, col, row);
+                boardNodes.add(boardTile);
             }
         }
-        for (int i = 0; i < dimension; i++) {
-            // Set Constraints
-            root.getColumnConstraints().add(new ColumnConstraints(sqSize));
-            root.getRowConstraints().add(new RowConstraints(sqSize));
+        if (init) {
+            for (int i = 0; i < dimension; i++) {
+                // Set Constraints
+                Main.root.getColumnConstraints().add(new ColumnConstraints(sqSize));
+                Main.root.getRowConstraints().add(new RowConstraints(sqSize));
+            }
         }
     }
 
-    public void drawPieces(String fen, GridPane root) {
+    public void drawPieces(String fen) {
         int[] board = b.loadFromFen(fen);
         for (int rank = 0; rank < 8; rank++) {
             for (int file = 0; file < 16; file++) {
@@ -85,7 +99,7 @@ public class GUI {
                     continue;
                 int piece = board[b.getSquare(rank, file)];
                 if (piece != p.none) {
-                    images[rank][file] = placeImage(rank, file, piece, root);
+                    images[rank][file] = placeImage(rank, file, piece, Main.root);
                     images[rank][file].setViewOrder(1);
                 }
             }
@@ -287,6 +301,174 @@ public class GUI {
         circles.clear();
     }
 
+    public void createGameScreen() {
+        newGameButton();
+        drawDifficultyPanel();
+        drawEvaluation();
+        undoButton();
+        drawCapturedPiecesPanel();
+        createHintButton();
+        tipsPanel();
+    }
+
+    public void createWelcomeScreen() {
+        difficultySlider();
+        chooseBrownTheme();
+        chooseBlueTheme();
+        choosePurpleTheme();
+        chooseColour();
+        startGameButton();
+    }
+
+    private void chooseColour() {
+        double sqSize = GUI.sqSize;
+        createPanel(4);
+        RadioButton whiteRadio = new RadioButton("White");
+        whiteRadio.setTextFill(Color.rgb(219, 216, 214));
+        whiteRadio.setSelected(true);
+        Font font = Font.font("Segoe UI", FontWeight.BOLD, sqSize / 6);
+        whiteRadio.setFont(font);
+        whiteRadio.setTranslateX(sqSize / 10);
+        whiteRadio.setToggleGroup(chooseColourGroup);
+        whiteRadio.setUserData("white");
+        Main.root.add(whiteRadio, 8, 4);
+
+        RadioButton blackRadio = new RadioButton("Black");
+        blackRadio.setTextFill(Color.rgb(219, 216, 214));
+        blackRadio.setFont(font);
+        blackRadio.setTranslateX(sqSize + sqSize / 5);
+        blackRadio.setToggleGroup(chooseColourGroup);
+        blackRadio.setUserData("black");
+        Main.root.add(blackRadio, 8, 4);
+    }
+
+    private void chooseBrownTheme() {
+        createPanel(1);
+        double sqSize = GUI.sqSize;
+        Rectangle lightSquare = new Rectangle(0, 0, sqSize, sqSize);
+        lightSquare.setFill(Color.rgb(248, 220, 180));
+        lightSquare.setTranslateX(sqSize * 2);
+        Main.root.add(lightSquare, 8, 1);
+        Rectangle darkSquare = new Rectangle(0, 0, sqSize, sqSize);
+        darkSquare.setFill(Color.rgb(184, 140, 100));
+        darkSquare.setTranslateX(sqSize);
+        Main.root.add(darkSquare, 8, 1);
+
+        RadioButton brownRadio = new RadioButton("Brown");
+        brownRadio.setTextFill(Color.rgb(219, 216, 214));
+        Font font = Font.font("Segoe UI", FontWeight.BOLD, sqSize / 6);
+        brownRadio.setFont(font);
+        brownRadio.setTranslateX(sqSize / 10);
+        brownRadio.setSelected(true);
+        brownRadio.setToggleGroup(boardThemeGroup);
+        Main.root.add(brownRadio, 8, 1);
+
+        brownRadio.setOnAction(actionEvent -> drawBoard("rgb(248, 220, 180)", "rgb(184, 140, 100)", false));
+    }
+
+    private void chooseBlueTheme() {
+        createPanel(2);
+        double sqSize = GUI.sqSize;
+        Rectangle lightSquare = new Rectangle(0, 0, sqSize, sqSize);
+        lightSquare.setTranslateX(sqSize * 2);
+        lightSquare.setFill(Color.rgb(240, 236, 212));
+        Main.root.add(lightSquare, 8, 2);
+        Rectangle darkSquare = new Rectangle(0, 0, sqSize, sqSize);
+        darkSquare.setFill(Color.rgb(80, 116, 156));
+        darkSquare.setTranslateX(sqSize);
+        Main.root.add(darkSquare, 8, 2);
+
+        RadioButton blueRadio = new RadioButton("Blue");
+        blueRadio.setTextFill(Color.rgb(219, 216, 214));
+        Font font = Font.font("Segoe UI", FontWeight.BOLD, sqSize / 6);
+        blueRadio.setFont(font);
+        blueRadio.setTranslateX(sqSize / 10);
+        blueRadio.setToggleGroup(boardThemeGroup);
+        Main.root.add(blueRadio, 8, 2);
+
+        blueRadio.setOnAction(actionEvent -> drawBoard("rgb(219, 216, 214)", "rgb(80, 116, 156)", false));
+    }
+
+    private void choosePurpleTheme() {
+        createPanel(3);
+        double sqSize = GUI.sqSize;
+        Rectangle lightSquare = new Rectangle(0, 0, sqSize, sqSize);
+        lightSquare.setTranslateX(sqSize * 2);
+        lightSquare.setFill(Color.rgb(240, 236, 236));
+        Main.root.add(lightSquare, 8, 3);
+        Rectangle darkSquare = new Rectangle(0, 0, sqSize, sqSize);
+        darkSquare.setFill(Color.rgb(144, 116, 180));
+        darkSquare.setTranslateX(sqSize);
+        Main.root.add(darkSquare, 8, 3);
+
+        RadioButton purpleRadio = new RadioButton("Purple");
+        purpleRadio.setTextFill(Color.rgb(219, 216, 214));
+        Font font = Font.font("Segoe UI", FontWeight.BOLD, sqSize / 6);
+        purpleRadio.setFont(font);
+        purpleRadio.setTranslateX(sqSize / 10);
+        purpleRadio.setToggleGroup(boardThemeGroup);
+        Main.root.add(purpleRadio, 8, 3);
+
+        purpleRadio.setOnAction(actionEvent -> drawBoard("rgb(240, 236, 236)", "rgb(144, 116, 180)", false));
+    }
+
+    public static int difficulty;
+
+    private void difficultySlider() {
+        double sqSize = GUI.sqSize;
+        Slider slider = new Slider();
+        slider.setMin(1);
+        slider.setMax(4);
+        slider.setValue(1);
+        slider.setMajorTickUnit(1);
+        slider.setMinorTickCount(0);
+        slider.setBlockIncrement(1);
+        slider.setSnapToTicks(true);
+        slider.setStyle("-fx-padding: " + sqSize / 10);
+        slider.setTranslateY(sqSize / 3);
+
+        Text text = new Text(0, 0, "Difficulty");
+        Font font = Font.font("Segoe UI", sqSize / 3);
+        text.setFill(Color.rgb(219, 216, 214));
+        text.setFont(font);
+        GridPane.setHalignment(text, HPos.CENTER);
+        text.setTranslateY(-sqSize / 10);
+
+        createPanel(0);
+        Main.root.add(slider, 8, 0);
+        Main.root.add(text, 8, 0);
+
+        difficulty = 1;
+
+        slider.valueProperty().addListener((observableValue, number, t1) -> {
+            difficulty = t1.intValue();
+            System.out.println(difficulty);
+        });
+    }
+
+    private void startGameButton() {
+        Button button = new Button("Start Game");
+        button.setPrefWidth(sqSize * 3);
+        button.setPrefHeight(sqSize);
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, (double) sqSize / 5);
+        button.setFont(font);
+        button.setTextFill(Color.rgb(219, 216, 214));
+        button.setTextAlignment(TextAlignment.CENTER);
+        button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
+        Main.root.add(button, 8, 6);
+        button.setOnAction(actionEvent -> startGame());
+    }
+
+    private void startGame() {
+        MouseHandler mouseHandler = new MouseHandler();
+        createGameScreen();
+        if (Objects.equals(chooseColourGroup.getSelectedToggle().getUserData().toString(), "white")) {
+            MouseHandler.moves = moveGenerator.generateLegalMoves();
+            generateHint();
+        } else
+            mouseHandler.doAIMove();
+    }
+
     private void createPanel(int row) {
         double sqSize = GUI.sqSize;
         // Create the panel
@@ -296,7 +478,7 @@ public class GUI {
         Main.root.add(panel, 8, row);
     }
 
-    public void drawDifficultyPanel() {
+    private void drawDifficultyPanel() {
         double sqSize = GUI.sqSize;
         createPanel(0);
         // Create the text
@@ -309,7 +491,7 @@ public class GUI {
         Main.root.add(text, 8, 0);
     }
 
-    public void drawEvaluation() {
+    private void drawEvaluation() {
         createPanel(1);
         double sqSize = GUI.sqSize;
         evaluationText.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3));
@@ -326,7 +508,7 @@ public class GUI {
             evaluationText.setText((AI.thinking ? -1 : 1) * evaluation / 10 + "");
     }
 
-    public void undoButton() {
+    private void undoButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("Undo");
         createButton(sqSize, sqSize, button);
@@ -352,7 +534,7 @@ public class GUI {
         generateHint();
     }
 
-    public void drawCapturedPiecesPanel() {
+    private void drawCapturedPiecesPanel() {
         double sqSize = GUI.sqSize;
         Rectangle whiteContainer = new Rectangle(0, 0, sqSize * 3, sqSize / 2);
         Rectangle blackContainer = new Rectangle(0, 0, sqSize * 3, sqSize / 2);
@@ -399,7 +581,7 @@ public class GUI {
         }
     }
 
-    public void newGameButton() {
+    private void newGameButton() {
         double sqSize = GUI.sqSize;
         Button button = new Button("New Game");
         createButton(sqSize, sqSize, button);
@@ -419,8 +601,6 @@ public class GUI {
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
     }
 
-    public static boolean newGame = false;
-
     private void createNewGame() {
         newGame = true;
         if (!AI.thinking) {
@@ -435,25 +615,25 @@ public class GUI {
         }
     }
 
-        public void visualNewGame() {
-            MouseHandler mouseHandler = new MouseHandler();
-            newGame = false;
-            for (int i = MakeMove.moveLog.size(); i-- > 0;)
-                undo();
-            if (MakeMove.moveLog.size() == 1) {
-                Move AIMove = makeMove.undoMove().setUndoMove();
-                int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
-                AIMove.setStartSq(endSq);
-                AIMove.setEndSq(startSq);
-                moveImages(AIMove);
-                MouseHandler.moves = moveGenerator.generateLegalMoves();
-                AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-                if (!Board.fenHistory.isEmpty())
-                    Board.fenHistory.remove(Board.fenHistory.size() - 1);
-                evaluationText.setText("Evaluation reset");
-            }
-            mouseHandler.doAIMove();
+    public void visualNewGame() {
+        MouseHandler mouseHandler = new MouseHandler();
+        newGame = false;
+        for (int i = MakeMove.moveLog.size(); i-- > 0; )
+            undo();
+        if (MakeMove.moveLog.size() == 1) {
+            Move AIMove = makeMove.undoMove().setUndoMove();
+            int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
+            AIMove.setStartSq(endSq);
+            AIMove.setEndSq(startSq);
+            moveImages(AIMove);
+            MouseHandler.moves = moveGenerator.generateLegalMoves();
+            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+            if (!Board.fenHistory.isEmpty())
+                Board.fenHistory.remove(Board.fenHistory.size() - 1);
+            evaluationText.setText("Evaluation reset");
         }
+        mouseHandler.doAIMove();
+    }
 
     private void undo() {
         if (MakeMove.moveLog.size() > 1) {
@@ -479,7 +659,7 @@ public class GUI {
         }
     }
 
-    public void createHintButton() {
+    private void createHintButton() {
         double sqSize = GUI.sqSize;
         Font font = Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3);
         hintButton.setFont(font);

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class MoveSearch {
@@ -19,14 +20,19 @@ public class MoveSearch {
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
 
-    private static int MIN_DISTANCE = 3;
-    public static int MAX_DISTANCE = 5;
+    private final HashMap<Integer, Integer> minDistanceFromMax = new HashMap<>() {{
+        put(1, 1);
+        put(2, 1);
+        put(3, 2);
+        put(4, 3);
+    }};
 
     public Move startSearch() {
         abortSearch = false;
         timeStarted = System.currentTimeMillis();
-        for (int searchDepth = MIN_DISTANCE; searchDepth <= MAX_DISTANCE; searchDepth++) {
-            moveSearch(MAX_DISTANCE, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
+        System.out.println(GUI.difficulty);
+        for (int searchDepth = minDistanceFromMax.get(GUI.difficulty); searchDepth <= GUI.difficulty; searchDepth++) {
+            moveSearch(searchDepth, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
             if (abortSearch || outOfTime())
                 break;
             else {

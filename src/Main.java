@@ -12,7 +12,6 @@ public class Main extends Application {
     public final String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     GUI gui = new GUI();
     MouseHandler mouseHandler = new MouseHandler();
-    public static boolean playerWhite = false;
 
     @Override
     public void start(Stage window) {
@@ -23,18 +22,11 @@ public class Main extends Application {
         window.setResizable(false);
         root.setStyle("-fx-background-color: rgb(34, 40, 49)");
 
-        gui.drawBoard(root);
-        gui.drawPieces(startFen, root);
+        gui.drawBoard("rgb(248, 220, 180)", "rgb(184, 140, 100)", true);
+        gui.drawPieces(startFen);
         mouseHandler.mouseClick(window);
-        mouseHandler.doAIMove();
 
-        gui.newGameButton();
-        gui.drawDifficultyPanel();
-        gui.drawEvaluation();
-        gui.undoButton();
-        gui.drawCapturedPiecesPanel();
-        gui.createHintButton();
-        gui.tipsPanel();
+        gui.createWelcomeScreen();
 
         window.setOnCloseRequest(t -> {
             Platform.exit();
