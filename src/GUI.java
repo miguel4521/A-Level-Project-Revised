@@ -1,13 +1,10 @@
 import javafx.animation.PathTransition;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.Slider;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -44,6 +41,7 @@ public class GUI {
     public static boolean cancelHint = false;
     public static Text tipsText = new Text("");
     public static boolean newGame = false;
+    public static int difficulty;
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
@@ -359,9 +357,11 @@ public class GUI {
         Font font = Font.font("Segoe UI", FontWeight.BOLD, sqSize / 6);
         brownRadio.setFont(font);
         brownRadio.setTranslateX(sqSize / 10);
-        brownRadio.setSelected(true);
         brownRadio.setToggleGroup(boardThemeGroup);
         Main.root.add(brownRadio, 8, 1);
+        brownRadio.setUserData("Brown");
+        if (boardThemeGroup.getSelectedToggle() == null || boardThemeGroup.getSelectedToggle().getUserData().toString().equals("Brown"))
+            boardThemeGroup.selectToggle(brownRadio);
 
         brownRadio.setOnAction(actionEvent -> drawBoard("rgb(248, 220, 180)", "rgb(184, 140, 100)", false));
     }
@@ -385,6 +385,10 @@ public class GUI {
         blueRadio.setTranslateX(sqSize / 10);
         blueRadio.setToggleGroup(boardThemeGroup);
         Main.root.add(blueRadio, 8, 2);
+        blueRadio.setUserData("Blue");
+
+        if (boardThemeGroup.getSelectedToggle().getUserData().toString().equals("Blue"))
+            boardThemeGroup.selectToggle(blueRadio);
 
         blueRadio.setOnAction(actionEvent -> drawBoard("rgb(219, 216, 214)", "rgb(80, 116, 156)", false));
     }
@@ -408,11 +412,13 @@ public class GUI {
         purpleRadio.setTranslateX(sqSize / 10);
         purpleRadio.setToggleGroup(boardThemeGroup);
         Main.root.add(purpleRadio, 8, 3);
+        purpleRadio.setUserData("Purple");
+
+        if (boardThemeGroup.getSelectedToggle().getUserData().toString().equals("Purple"))
+            boardThemeGroup.selectToggle(purpleRadio);
 
         purpleRadio.setOnAction(actionEvent -> drawBoard("rgb(240, 236, 236)", "rgb(144, 116, 180)", false));
     }
-
-    public static int difficulty;
 
     private void difficultySlider() {
         double sqSize = GUI.sqSize;
@@ -461,6 +467,7 @@ public class GUI {
 
     private void startGame() {
         MouseHandler mouseHandler = new MouseHandler();
+        removeSidePanels();
         createGameScreen();
         if (Objects.equals(chooseColourGroup.getSelectedToggle().getUserData().toString(), "white")) {
             MouseHandler.moves = moveGenerator.generateLegalMoves();
@@ -609,14 +616,12 @@ public class GUI {
                 showHint = false;
                 hintButton.setText("Hint?");
                 cancelHint = true;
-                System.out.println("test");
             } else
                 visualNewGame();
         }
     }
 
     public void visualNewGame() {
-        MouseHandler mouseHandler = new MouseHandler();
         newGame = false;
         for (int i = MakeMove.moveLog.size(); i-- > 0; )
             undo();
@@ -632,7 +637,13 @@ public class GUI {
                 Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
         }
-        mouseHandler.doAIMove();
+        removeSidePanels();
+        createWelcomeScreen();
+    }
+
+    private void removeSidePanels() {
+        ObservableList<Node> children = Main.root.getChildren();
+        children.removeIf(node -> GridPane.getColumnIndex(node) == 8);
     }
 
     private void undo() {
