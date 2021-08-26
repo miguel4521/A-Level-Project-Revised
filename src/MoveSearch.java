@@ -3,15 +3,19 @@ import java.util.HashMap;
 import java.util.Objects;
 
 public class MoveSearch {
+    public static boolean abortSearch = false;
     private final int CHECKMATE = (int) Double.POSITIVE_INFINITY;
-    private
-    MoveGenerator moveGenerator = new MoveGenerator();
+    private final HashMap<Integer, Integer> minDistanceFromMax = new HashMap<>() {{
+        put(1, 1);
+        put(2, 1);
+        put(3, 2);
+        put(4, 3);
+    }};
     Evaluation e = new Evaluation();
     Board b = new Board();
     MoveOrdering moveOrdering = new MoveOrdering();
     MakeMove makeMove = new MakeMove();
     long timeStarted;
-    public static boolean abortSearch = false;
     int currentIterativeSearchDepth;
     Move bestMoveThisIteration;
     Move bestMove;
@@ -19,13 +23,8 @@ public class MoveSearch {
     int bestEval;
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
-
-    private final HashMap<Integer, Integer> minDistanceFromMax = new HashMap<>() {{
-        put(1, 1);
-        put(2, 1);
-        put(3, 2);
-        put(4, 3);
-    }};
+    private
+    MoveGenerator moveGenerator = new MoveGenerator();
 
     public Move startSearch() {
         abortSearch = false;
@@ -61,8 +60,8 @@ public class MoveSearch {
                 return alpha;
         }
         if (depth == 0) {
-            if (currentIterativeSearchDepth > 0)
-            return quiesceSearch(alpha, beta, turnMultiplier);
+            if (currentIterativeSearchDepth > 0 || GUI.difficulty == 1)
+                return quiesceSearch(alpha, beta, turnMultiplier);
             else
                 return e.evaluate(Board.board) * turnMultiplier;
         }
