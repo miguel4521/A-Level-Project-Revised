@@ -20,7 +20,7 @@ public class MoveSearch {
     int bestEvalThisIteration = bestEval = 0;
 
     private static int MIN_DISTANCE = 3;
-    public static int MAX_DISTANCE = 4;
+    public static int MAX_DISTANCE = 5;
 
     public Move startSearch() {
         abortSearch = false;
@@ -33,6 +33,7 @@ public class MoveSearch {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
+                System.out.println(currentIterativeSearchDepth);
             }
         }
         return bestMove;
@@ -43,7 +44,6 @@ public class MoveSearch {
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
-        System.out.println(currentIterativeSearchDepth);
         if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
             return 0;
         if (plyFromRoot > 0) {

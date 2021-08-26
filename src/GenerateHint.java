@@ -5,11 +5,10 @@ import java.util.ArrayList;
 public class GenerateHint implements Runnable {
     public static boolean hintGenerated = false;
     public static Move move;
+    public static String hintText = "";
     MoveGenerator moveGenerator = new MoveGenerator();
     AI ai = new AI();
     GUI gui = new GUI();
-    public static String hintText = "";
-
     Piece p = new Piece();
     MouseHandler mouseHandler = new MouseHandler();
 
@@ -28,9 +27,6 @@ public class GenerateHint implements Runnable {
         if (move.isPromotion())
             hintText = "The hint suggests that you promote your pawn. When a pawn is promoted it automatically turns " +
                     "into a queen.";
-        else if (move.isDoubleSqMove())
-            hintText = "The hint suggests that you advance two squares with your pawn. This can only be done when the " +
-                    "pawn is on its starting rank (row). Remember that when this happens it's vulnerable to en passant!";
         else if (move.isEnPassantMove())
             hintText = "The hint suggests that you do an en passant move. En passant is a special pawn capture move " +
                     "that can only occur after a pawn has advanced two squares from its starting rank (row). " +
@@ -44,6 +40,9 @@ public class GenerateHint implements Runnable {
             hintText = "The hint suggests that you do a book move. A book move is a set of moves done at the beginning" +
                     " of the game to put your pieces into a better position. This normally doesn't result in an " +
                     "advantage in material.";
+        else if (move.isDoubleSqMove())
+            hintText = "The hint suggests that you advance two squares with your pawn. This can only be done when the " +
+                    "pawn is on its starting rank (row). Remember that when this happens it's vulnerable to en passant!";
         else if (move.isCaptureMove())
             hintText = "The hint suggests that you capture the " +
                     p.pieceIDToString.get(p.plusOrMinus(move.getPieceCaptured())) + " with your " + p.pieceIDToString.get(p.plusOrMinus(move.getPieceMoved()))
@@ -64,9 +63,12 @@ public class GenerateHint implements Runnable {
                 if (MouseHandler.cancelMove) {
                     mouseHandler.completeMove();
                     MouseHandler.cancelMove = false;
+                } else {
+                    if (GUI.newGame)
+                        gui.visualNewGame();
+                    else
+                        gui.visualUndo();
                 }
-                else
-                    gui.visualUndo();
             });
             GUI.cancelHint = false;
         }

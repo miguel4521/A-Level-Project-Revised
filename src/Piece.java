@@ -17,7 +17,7 @@ public class Piece {
         put(2, "3");
         put(3, "3");
         put(4, "5");
-        put(6, "6");
+        put(5, "9");
     }};
 
     public int plusOrMinus(int piece) {

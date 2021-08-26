@@ -335,7 +335,7 @@ public class GUI {
     }
 
     private void undoClicked() {
-        if (!AI.thinking && MakeMove.moveLog.size() > 1) {
+        if (!AI.thinking) {
             if (!GenerateHint.hintGenerated) {
                 MoveSearch.abortSearch = true;
                 showHint = false;
@@ -348,25 +348,7 @@ public class GUI {
     }
 
     public void visualUndo() {
-        Move AIMove = makeMove.undoMove().setUndoMove();
-        int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
-        AIMove.setStartSq(endSq);
-        AIMove.setEndSq(startSq);
-        moveImages(AIMove);
-        Move playerMove = makeMove.undoMove().setUndoMove();
-        startSq = playerMove.getStartSq();
-        endSq = playerMove.getEndSq();
-        playerMove.setStartSq(endSq);
-        playerMove.setEndSq(startSq);
-        moveImages(playerMove);
-        MouseHandler.moves = moveGenerator.generateLegalMoves();
-        AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-        AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-        Board.fenHistory.remove(Board.fenHistory.size() - 1);
-        Board.fenHistory.remove(Board.fenHistory.size() - 1);
-        evaluationText.setText("Evaluation reset");
-        Main.root.getChildren().remove(startHintTile);
-        Main.root.getChildren().remove(endHintTile);
+        undo();
         generateHint();
     }
 
@@ -437,22 +419,63 @@ public class GUI {
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
     }
 
+    public static boolean newGame = false;
+
     private void createNewGame() {
-        MouseHandler mouseHandler = new MouseHandler();
-        for (int i = MakeMove.moveLog.size(); i-- > 0; )
-            undoClicked();
-        if (MakeMove.moveLog.size() == 1) {
+        newGame = true;
+        if (!AI.thinking) {
+            if (!GenerateHint.hintGenerated) {
+                MoveSearch.abortSearch = true;
+                showHint = false;
+                hintButton.setText("Hint?");
+                cancelHint = true;
+                System.out.println("test");
+            } else
+                visualNewGame();
+        }
+    }
+
+        public void visualNewGame() {
+            MouseHandler mouseHandler = new MouseHandler();
+            newGame = false;
+            for (int i = MakeMove.moveLog.size(); i-- > 0;)
+                undo();
+            if (MakeMove.moveLog.size() == 1) {
+                Move AIMove = makeMove.undoMove().setUndoMove();
+                int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
+                AIMove.setStartSq(endSq);
+                AIMove.setEndSq(startSq);
+                moveImages(AIMove);
+                MouseHandler.moves = moveGenerator.generateLegalMoves();
+                AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+                if (!Board.fenHistory.isEmpty())
+                    Board.fenHistory.remove(Board.fenHistory.size() - 1);
+                evaluationText.setText("Evaluation reset");
+            }
+            mouseHandler.doAIMove();
+        }
+
+    private void undo() {
+        if (MakeMove.moveLog.size() > 1) {
             Move AIMove = makeMove.undoMove().setUndoMove();
             int startSq = AIMove.getStartSq(), endSq = AIMove.getEndSq();
             AIMove.setStartSq(endSq);
             AIMove.setEndSq(startSq);
             moveImages(AIMove);
+            Move playerMove = makeMove.undoMove().setUndoMove();
+            startSq = playerMove.getStartSq();
+            endSq = playerMove.getEndSq();
+            playerMove.setStartSq(endSq);
+            playerMove.setEndSq(startSq);
+            moveImages(playerMove);
             MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-            if (!Board.fenHistory.isEmpty())
-                Board.fenHistory.remove(Board.fenHistory.size() - 1);
+            AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
+            Board.fenHistory.remove(Board.fenHistory.size() - 1);
+            Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
-            mouseHandler.doAIMove();
+            Main.root.getChildren().remove(startHintTile);
+            Main.root.getChildren().remove(endHintTile);
         }
     }
 
