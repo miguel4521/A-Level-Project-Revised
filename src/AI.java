@@ -46,16 +46,6 @@ public class AI implements Runnable {
         put(1, 7);
         put(0, 8);
     }};
-    HashMap<Character, Integer> ranksToRows = new HashMap<>() {{
-        put('1', 7);
-        put('2', 6);
-        put('3', 5);
-        put('4', 4);
-        put('5', 3);
-        put('6', 2);
-        put('7', 1);
-        put('8', 0);
-    }};
     HashMap<Character, Integer> filesToCols = new HashMap<>() {{
         put('a', 0);
         put('b', 1);
@@ -78,10 +68,7 @@ public class AI implements Runnable {
         thinking = true;
         ArrayList<Move> legalMoves = moveGenerator.generateLegalMoves();
         if (legalMoves.isEmpty()) {
-            if (moveGenerator.inCheck())
-                System.out.println("Checkmate");
-            else
-                System.out.println("Stalemate");
+            gui.endGame(moveGenerator.inCheck());
             thinking = false;
             return;
         }
@@ -94,12 +81,8 @@ public class AI implements Runnable {
         });
         Board.fenHistory.add(b.loadFenFromBoard());
         MouseHandler.moves = moveGenerator.generateLegalMoves();
-        if (MouseHandler.moves.isEmpty()) {
-            if (moveGenerator.inCheck())
-                System.out.println("Checkmate");
-            else
-                System.out.println("Stalemate");
-        }
+        if (MouseHandler.moves.isEmpty())
+            gui.endGame(moveGenerator.inCheck());
         gui.generateHint();
         thinking = false;
     }

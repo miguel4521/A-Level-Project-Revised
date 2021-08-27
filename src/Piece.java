@@ -32,13 +32,4 @@ public class Piece {
     public boolean isPiece(int piece1, int piece2) {
         return piece1 * (piece1 > 0 ? 1 : -1) == piece2;
     }
-
-    private boolean isSameColour(int piece, int colour) {
-        return piece > 0 && colour == 1 || piece < 0 && colour == -1;
-    }
-
-    public int pieceType(int piece) {
-        return piece * (piece > 0 ? 1 : -1);
-    }
-
 }

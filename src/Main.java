@@ -1,11 +1,8 @@
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 public class Main extends Application {
     public static GridPane root;
@@ -16,7 +13,6 @@ public class Main extends Application {
     @Override
     public void start(Stage window) {
         root = new GridPane();
-        // The colour is the background colour of the board
         window.setScene(new Scene(root, GUI.boardSize + GUI.sqSize * 3, GUI.boardSize));
         window.setTitle("Chess");
         window.setResizable(false);

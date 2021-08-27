@@ -17,10 +17,7 @@ public class GenerateHint implements Runnable {
         hintGenerated = false;
         ArrayList<Move> legalMoves = moveGenerator.generateLegalMoves();
         if (legalMoves.isEmpty()) {
-            if (moveGenerator.inCheck())
-                System.out.println("Checkmate");
-            else
-                System.out.println("Stalemate");
+            gui.endGame(moveGenerator.inCheck());
             return;
         }
         move = ai.generateMove(legalMoves);

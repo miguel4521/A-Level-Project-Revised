@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Objects;
 
 public class MoveSearch {
     public static boolean abortSearch = false;
@@ -14,7 +12,6 @@ public class MoveSearch {
     }};
     private final MoveGenerator moveGenerator = new MoveGenerator();
     Evaluation e = new Evaluation();
-    Board b = new Board();
     MoveOrdering moveOrdering = new MoveOrdering();
     MakeMove makeMove = new MakeMove();
     long timeStarted;
@@ -47,7 +44,6 @@ public class MoveSearch {
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
-        //System.out.println(currentIterativeSearchDepth);
         if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
             return 0;
         if (plyFromRoot > 0) {
@@ -62,7 +58,7 @@ public class MoveSearch {
         moveOrdering.orderMoves(moves);
         if (moves.isEmpty()) {
             if (moveGenerator.inCheck())
-                return -CHECKMATE;
+                return -(CHECKMATE - plyFromRoot);
             else
                 return 0;
         }

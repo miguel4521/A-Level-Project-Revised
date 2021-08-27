@@ -1,4 +1,5 @@
 import javafx.animation.PathTransition;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -235,6 +236,21 @@ public class GUI {
         }
     }
 
+    public void endGame(boolean checkmate) {
+        double sqSize = GUI.sqSize;
+        Platform.runLater(() -> {
+            removeSidePanels(true);
+            createPanel(3);
+            Text text = new Text(checkmate ? "Checkmate!" : "Stalemate!");
+            Font font = Font.font("Segoe UI", sqSize / 3);
+            text.setFill(Color.rgb(219, 216, 214));
+            text.setFont(font);
+            GridPane.setHalignment(text, HPos.CENTER);
+            Main.root.add(text, 8, 3);
+            newGameButton(true);
+        });
+    }
+
     private void showLastMove(Move move) {
         Main.root.getChildren().remove(startTile);
         Main.root.getChildren().remove(endTile);
@@ -302,19 +318,20 @@ public class GUI {
         circles.clear();
     }
 
-    public void createGameScreen() {
-        newGameButton();
+    public void createGameScreen(boolean isSettings) {
+        newGameButton(false);
         drawDifficultyPanel();
         drawEvaluation();
         undoButton();
-        drawCapturedPiecesPanel();
+        if (!isSettings)
+            drawCapturedPiecesPanel();
         createHintButton();
         tipsPanel();
         createSettingsButton();
     }
 
     public void createWelcomeScreen(boolean isSettings) {
-        removeSidePanels();
+        removeSidePanels(!isSettings);
         difficultySlider();
         chooseBrownTheme();
         chooseBlueTheme();
@@ -472,8 +489,8 @@ public class GUI {
 
     private void startGame(boolean isSettings) {
         MouseHandler mouseHandler = new MouseHandler();
-        removeSidePanels();
-        createGameScreen();
+        removeSidePanels(false);
+        createGameScreen(isSettings);
         if (Objects.equals(chooseColourGroup.getSelectedToggle().getUserData().toString(), "white")) {
             MouseHandler.moves = moveGenerator.generateLegalMoves();
             generateHint();
@@ -599,12 +616,17 @@ public class GUI {
         }
     }
 
-    private void newGameButton() {
+    private void newGameButton(boolean ended) {
         double sqSize = GUI.sqSize;
         Button button = new Button("New Game");
         createButton(sqSize, sqSize, button);
         button.setTranslateX(sqSize);
-        button.setOnAction(actionEvent -> createNewGame());
+        button.setOnAction(actionEvent -> {
+            if (ended)
+                visualNewGame();
+            else
+                createNewGame();
+        });
         Main.root.add(button, 8, 6);
     }
 
@@ -628,7 +650,6 @@ public class GUI {
     }
 
     private void createNewGame() {
-        newGame = true;
         if (!AI.thinking) {
             if (!GenerateHint.hintGenerated) {
                 MoveSearch.abortSearch = true;
@@ -658,13 +679,13 @@ public class GUI {
         }
         MouseHandler.moves.clear();
         GenerateHint.hintText = "";
-        removeSidePanels();
+        removeSidePanels(false);
         createWelcomeScreen(false);
     }
 
-    private void removeSidePanels() {
+    private void removeSidePanels(boolean removeSidePieces) {
         ObservableList<Node> children = Main.root.getChildren();
-        children.removeIf(node -> GridPane.getColumnIndex(node) == 8);
+        children.removeIf(node -> GridPane.getColumnIndex(node) == 8 && (GridPane.getRowIndex(node) != 7 || removeSidePieces));
     }
 
     private void undo() {
@@ -732,17 +753,17 @@ public class GUI {
         drawMove(startRank, startFile, endRank, endFile, startSqHintColour, endSqHintColour, startHintTile, endHintTile);
     }
 
-    private void drawMove(int startRank, int startFile, int endRank, int endFile, String startSqColour, String endSqColour, StackPane startHintTile, StackPane endHintTile) {
-        startHintTile.setStyle("-fx-background-color: " + startSqColour + ";");
-        endHintTile.setStyle("-fx-background-color: " + endSqColour + ";");
-        startHintTile.setViewOrder(2);
-        endHintTile.setViewOrder(2);
+    private void drawMove(int startRank, int startFile, int endRank, int endFile, String startSqColour, String endSqColour, StackPane startTile, StackPane endTile) {
+        startTile.setStyle("-fx-background-color: " + startSqColour + ";");
+        endTile.setStyle("-fx-background-color: " + endSqColour + ";");
+        startTile.setViewOrder(2);
+        endTile.setViewOrder(2);
 
         tipsText.setText(GenerateHint.hintText);
         GenerateHint.hintText = "";
 
-        Main.root.add(startHintTile, startFile, startRank);
-        Main.root.add(endHintTile, endFile, endRank);
+        Main.root.add(startTile, startFile, startRank);
+        Main.root.add(endTile, endFile, endRank);
     }
 
     public void removeHint() {
