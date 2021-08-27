@@ -38,19 +38,19 @@ public class GUI {
     private static final StackPane square = new StackPane();
     private static final ArrayList<ImageView> capturedPieceImages = new ArrayList<>();
     private static final ToggleGroup boardThemeGroup = new ToggleGroup(), chooseColourGroup = new ToggleGroup();
+    private static final ArrayList<Node> boardNodes = new ArrayList<>();
     public static Button hintButton = new Button("Hint?");
     public static ImageView[][] images = new ImageView[8][8];
     public static boolean showHint = false;
     public static boolean cancelHint = false;
     public static Text tipsText = new Text("");
     public static boolean newGame = false;
-    public static int difficulty;
+    public static int difficulty = 1;
     static int boardSize = (int) (Toolkit.getDefaultToolkit().getScreenSize().height * 0.9);
     static int sqSize = boardSize / dimension;
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
     private static int whitePiecesCaptured = 0;
     private static int blackPiecesCaptured = 0;
-    private static final ArrayList<Node> boardNodes = new ArrayList<>();
     Piece p = new Piece();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
@@ -315,7 +315,6 @@ public class GUI {
 
     public void createWelcomeScreen(boolean isSettings) {
         removeSidePanels();
-        MouseHandler.moves.clear();
         difficultySlider();
         chooseBrownTheme();
         chooseBlueTheme();
@@ -432,7 +431,7 @@ public class GUI {
         Slider slider = new Slider();
         slider.setMin(1);
         slider.setMax(4);
-        slider.setValue(1);
+        slider.setValue(difficulty);
         slider.setMajorTickUnit(1);
         slider.setMinorTickCount(0);
         slider.setBlockIncrement(1);
@@ -451,8 +450,6 @@ public class GUI {
         Main.root.add(slider, 8, 0);
         Main.root.add(text, 8, 0);
 
-        difficulty = 1;
-
         slider.valueProperty().addListener((observableValue, number, t1) -> difficulty = observableValue.getValue().intValue());
     }
 
@@ -470,10 +467,10 @@ public class GUI {
         button.setTextAlignment(TextAlignment.CENTER);
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
         Main.root.add(button, 8, 6);
-        button.setOnAction(actionEvent -> startGame());
+        button.setOnAction(actionEvent -> startGame(isSettings));
     }
 
-    private void startGame() {
+    private void startGame(boolean isSettings) {
         MouseHandler mouseHandler = new MouseHandler();
         removeSidePanels();
         createGameScreen();
