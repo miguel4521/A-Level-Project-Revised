@@ -78,7 +78,6 @@ public class MouseHandler {
         makeMove.makeMove(move);
         gui.moveImages(move);
         ai.addToChessNotationMoveLog(move, moves);
-        Board.fenHistory.add(b.loadFenFromBoard());
         squareSelected = -1;
         doAIMove();
         move = null;

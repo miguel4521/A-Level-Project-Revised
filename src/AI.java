@@ -79,7 +79,6 @@ public class AI implements Runnable {
             gui.moveImages(move);
             GUI.hintButton.setText("Hint?");
         });
-        Board.fenHistory.add(b.loadFenFromBoard());
         MouseHandler.moves = moveGenerator.generateLegalMoves();
         if (MouseHandler.moves.isEmpty())
             gui.endGame(moveGenerator.inCheck());

@@ -673,8 +673,6 @@ public class GUI {
             moveImages(AIMove);
             MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-            if (!Board.fenHistory.isEmpty())
-                Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
         }
         MouseHandler.moves.clear();
@@ -704,8 +702,6 @@ public class GUI {
             MouseHandler.moves = moveGenerator.generateLegalMoves();
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
             AI.chessNotationMoveLog.remove(AI.chessNotationMoveLog.size() - 1);
-            Board.fenHistory.remove(Board.fenHistory.size() - 1);
-            Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
             Main.root.getChildren().remove(startHintTile);
             Main.root.getChildren().remove(endHintTile);
