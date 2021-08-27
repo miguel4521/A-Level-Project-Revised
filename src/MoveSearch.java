@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -9,8 +10,9 @@ public class MoveSearch {
         put(1, 1);
         put(2, 1);
         put(3, 2);
-        put(4, 3);
+        put(4, 2);
     }};
+    private final MoveGenerator moveGenerator = new MoveGenerator();
     Evaluation e = new Evaluation();
     Board b = new Board();
     MoveOrdering moveOrdering = new MoveOrdering();
@@ -23,53 +25,44 @@ public class MoveSearch {
     int bestEval;
     GUI gui = new GUI();
     int bestEvalThisIteration = bestEval = 0;
-    private
-    MoveGenerator moveGenerator = new MoveGenerator();
 
     public Move startSearch() {
         abortSearch = false;
         timeStarted = System.currentTimeMillis();
-        System.out.println(GUI.difficulty);
         for (int searchDepth = minDistanceFromMax.get(GUI.difficulty); searchDepth <= GUI.difficulty; searchDepth++) {
             moveSearch(searchDepth, 0, -CHECKMATE, CHECKMATE, Board.whiteToMove ? 1 : -1);
-            if (abortSearch || outOfTime())
+            if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
                 break;
             else {
                 currentIterativeSearchDepth = searchDepth;
                 bestMove = bestMoveThisIteration;
                 bestEval = bestEvalThisIteration;
-                System.out.println(currentIterativeSearchDepth);
             }
         }
         return bestMove;
     }
 
     private boolean outOfTime() {
-        return (System.currentTimeMillis() - timeStarted) > 20000;
+        return (System.currentTimeMillis() - timeStarted) > 30000;
     }
 
     private int moveSearch(int depth, int plyFromRoot, int alpha, int beta, int turnMultiplier) {
+        //System.out.println(currentIterativeSearchDepth);
         if (abortSearch || outOfTime() && currentIterativeSearchDepth > 0)
             return 0;
         if (plyFromRoot > 0) {
-            if (drawByRepetition()) // Prevent draw by repetition
-                return -300;
             alpha = Math.max(alpha, -CHECKMATE + plyFromRoot);
             beta = Math.min(beta, CHECKMATE - plyFromRoot);
             if (alpha >= beta)
                 return alpha;
         }
-        if (depth == 0) {
-            if (currentIterativeSearchDepth > 0 || GUI.difficulty == 1)
-                return quiesceSearch(alpha, beta, turnMultiplier);
-            else
-                return e.evaluate(Board.board) * turnMultiplier;
-        }
+        if (depth == 0)
+            return quiesceSearch(alpha, beta, turnMultiplier);
         ArrayList<Move> moves = moveGenerator.generateLegalMoves();
         moveOrdering.orderMoves(moves);
         if (moves.isEmpty()) {
             if (moveGenerator.inCheck())
-                return -(CHECKMATE - plyFromRoot);
+                return -CHECKMATE;
             else
                 return 0;
         }
@@ -86,22 +79,10 @@ public class MoveSearch {
                     bestEvalThisIteration = eval;
                     bestMoveThisIteration = move;
                     gui.updateEvaluation(bestEvalThisIteration);
-                    //bestMove = move;
                 }
             }
         }
         return alpha;
-    }
-
-    private boolean drawByRepetition() {
-        int counter = 0;
-        for (String fen : Board.fenHistory) {
-            if (Objects.equals(fen, b.loadFenFromBoard()))
-                counter++;
-            if (counter > 0)
-                return true;
-        }
-        return false;
     }
 
     private int quiesceSearch(int alpha, int beta, int turnMultiplier) {

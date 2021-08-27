@@ -3,8 +3,10 @@ import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Slider;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
@@ -22,6 +24,7 @@ import javafx.util.Duration;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,7 +50,7 @@ public class GUI {
     public static Text evaluationText = new Text(sqSize, sqSize, "0.0");
     private static int whitePiecesCaptured = 0;
     private static int blackPiecesCaptured = 0;
-    private static ArrayList<Node> boardNodes = new ArrayList<>();
+    private static final ArrayList<Node> boardNodes = new ArrayList<>();
     Piece p = new Piece();
     Board b = new Board();
     MakeMove makeMove = new MakeMove();
@@ -307,15 +310,19 @@ public class GUI {
         drawCapturedPiecesPanel();
         createHintButton();
         tipsPanel();
+        createSettingsButton();
     }
 
-    public void createWelcomeScreen() {
+    public void createWelcomeScreen(boolean isSettings) {
+        removeSidePanels();
+        MouseHandler.moves.clear();
         difficultySlider();
         chooseBrownTheme();
         chooseBlueTheme();
         choosePurpleTheme();
-        chooseColour();
-        startGameButton();
+        if (!isSettings)
+            chooseColour();
+        startGameButton(isSettings);
     }
 
     private void chooseColour() {
@@ -446,14 +453,15 @@ public class GUI {
 
         difficulty = 1;
 
-        slider.valueProperty().addListener((observableValue, number, t1) -> {
-            difficulty = t1.intValue();
-            System.out.println(difficulty);
-        });
+        slider.valueProperty().addListener((observableValue, number, t1) -> difficulty = observableValue.getValue().intValue());
     }
 
-    private void startGameButton() {
-        Button button = new Button("Start Game");
+    private void startGameButton(boolean isSettings) {
+        Button button;
+        if (isSettings)
+            button = new Button("Resume Game");
+        else
+            button = new Button("Start Game");
         button.setPrefWidth(sqSize * 3);
         button.setPrefHeight(sqSize);
         Font font = Font.font("Segoe UI", FontWeight.NORMAL, (double) sqSize / 5);
@@ -487,11 +495,17 @@ public class GUI {
 
     private void drawDifficultyPanel() {
         double sqSize = GUI.sqSize;
+        HashMap<Integer, String> difficultyToString = new HashMap<>() {{
+            put(1, "Difficulty - Beginner\nELO 700");
+            put(2, "Difficulty - Intermediate \nELO 900");
+            put(3, "Difficulty - Advanced \nELO 1200");
+            put(4, "Difficulty - Master \nELO 1500");
+        }};
         createPanel(0);
         // Create the text
-        Text text = new Text(sqSize, sqSize, "Difficulty - Hard\nELO 1500");
+        Text text = new Text(sqSize, sqSize, difficultyToString.get(difficulty));
         text.setTextAlignment(TextAlignment.CENTER);
-        text.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 3));
+        text.setFont(Font.font("Segoe UI", FontWeight.NORMAL, sqSize / 4));
         GridPane.setHalignment(text, HPos.CENTER);
         GridPane.setValignment(text, VPos.CENTER);
         text.setFill(Color.rgb(219, 216, 214));
@@ -600,12 +614,20 @@ public class GUI {
     private void createButton(double width, double height, Button button) {
         button.setPrefWidth(width);
         button.setPrefHeight(height);
-        Font font = Font.font("Segoe UI", FontWeight.NORMAL, width / 5);
+        Font font = Font.font("Segoe UI", FontWeight.NORMAL, width / 6);
         button.setFont(font);
         button.setTextFill(Color.rgb(219, 216, 214));
         button.setWrapText(true);
         button.setTextAlignment(TextAlignment.CENTER);
         button.setStyle("-fx-background-color: rgb(57, 62, 70);" + "-fx-border-color: rgb(34, 40, 49)");
+    }
+
+    private void createSettingsButton() {
+        Button button = new Button("Settings");
+        createButton(sqSize, sqSize, button);
+        button.setTranslateX(sqSize * 2);
+        button.setOnAction(actionEvent -> createWelcomeScreen(true));
+        Main.root.add(button, 8, 6);
     }
 
     private void createNewGame() {
@@ -637,8 +659,10 @@ public class GUI {
                 Board.fenHistory.remove(Board.fenHistory.size() - 1);
             evaluationText.setText("Evaluation reset");
         }
+        MouseHandler.moves.clear();
+        GenerateHint.hintText = "";
         removeSidePanels();
-        createWelcomeScreen();
+        createWelcomeScreen(false);
     }
 
     private void removeSidePanels() {

@@ -26,7 +26,7 @@ public class Main extends Application {
         gui.drawPieces(startFen);
         mouseHandler.mouseClick(window);
 
-        gui.createWelcomeScreen();
+        gui.createWelcomeScreen(false);
 
         window.setOnCloseRequest(t -> {
             Platform.exit();

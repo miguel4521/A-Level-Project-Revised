@@ -109,7 +109,7 @@ public class AI implements Runnable {
                 replace("[", "").replace("]", "").replace(",", "");
         Move move = notationToMove(findMove(input), legalMoves);
         if (MakeMove.moveLog.isEmpty())
-            move = randomOpeningMove();
+            move = randomOpeningMove().setBookMove();
         if (move != null && !MakeMove.moveLog.isEmpty()) {
             try {
                 Thread.sleep(500);

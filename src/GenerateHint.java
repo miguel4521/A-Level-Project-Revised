@@ -40,9 +40,6 @@ public class GenerateHint implements Runnable {
             hintText = "The hint suggests that you do a book move. A book move is a set of moves done at the beginning" +
                     " of the game to put your pieces into a better position. This normally doesn't result in an " +
                     "advantage in material.";
-        else if (move.isDoubleSqMove())
-            hintText = "The hint suggests that you advance two squares with your pawn. This can only be done when the " +
-                    "pawn is on its starting rank (row). Remember that when this happens it's vulnerable to en passant!";
         else if (move.isCaptureMove())
             hintText = "The hint suggests that you capture the " +
                     p.pieceIDToString.get(p.plusOrMinus(move.getPieceCaptured())) + " with your " + p.pieceIDToString.get(p.plusOrMinus(move.getPieceMoved()))
