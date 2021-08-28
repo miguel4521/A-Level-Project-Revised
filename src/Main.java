@@ -1,8 +1,11 @@
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class Main extends Application {
     public static GridPane root;
@@ -17,6 +20,7 @@ public class Main extends Application {
         window.setTitle("Chess");
         window.setResizable(false);
         root.setStyle("-fx-background-color: rgb(34, 40, 49)");
+        window.getIcons().add(new Image(Objects.requireNonNull(this.getClass().getResourceAsStream("Assets/Chess-icon.png"))));
 
         gui.drawBoard("rgb(248, 220, 180)", "rgb(184, 140, 100)", true);
         gui.drawPieces(startFen);
