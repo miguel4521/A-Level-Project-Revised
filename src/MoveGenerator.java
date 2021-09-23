@@ -14,9 +14,11 @@ public class MoveGenerator extends Board {
         for (int i = moves.size(); i-- > 0; ) {
             makeMove.makeMove(moves.get(i));
             whiteToMove = !whiteToMove;
+            // If it causes a check (the king is threatened), it isn't a legal move
             if (inCheck())
                 moves.remove(moves.get(i));
             whiteToMove = !whiteToMove;
+            // Undo the move
             makeMove.undoMove();
         }
         return moves;
