@@ -1,6 +1,7 @@
 # Chess Game
 
 A fully-featured chess engine and GUI implementation created as my first major programming project during my sixth form studies in the summer of 2021.
+<img width="1379" alt="image" src="https://github.com/user-attachments/assets/183bbcc4-59bf-427e-accc-12c5eeb1a082" />
 
 ## About the Project
 
